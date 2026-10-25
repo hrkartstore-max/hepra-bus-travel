@@ -564,7 +564,7 @@ renderPointOptions(boardingPointOptions,bookingPointData.boarding,"boarding");
 renderPointOptions(dropPointOptions,bookingPointData.drop,"drop");
 const seatStepHeading=bookingForm.querySelector(".booking-step-title");
 const seatStepNote=$("#seatInventoryNote");
-const passengerStepHeading=Array.from(bookingForm.querySelectorAll(".booking-step-title"))[1];
+const passengerStepHeading=Array.from(bookingForm.querySelectorAll(".booking-step-title")).find(heading=>heading.querySelector("h3")?.textContent.includes("Passenger details"));
 const passengerFields=bookingForm.querySelector(".booking-passenger");
 const fareSummary=bookingForm.querySelector(".booking-summary");
 const bookingNotice=$("#bookingNotice");
@@ -574,7 +574,7 @@ const stepBackButton=node("button","booking-step-back","← Back to seats");
 stepBackButton.type="button";
 stepBackButton.hidden=true;
 passengerStepHeading.insertBefore(stepBackButton,passengerStepHeading.firstChild);
-bookingForm.insertBefore(stepNextButton,passengerStepHeading);
+seatStepNote.after(stepNextButton);
 function setBookingStep(step){
  bookingStep=step;
  const seats=step==="seats",points=step==="points",passenger=step==="passenger";
