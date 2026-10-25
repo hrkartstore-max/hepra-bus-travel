@@ -512,7 +512,16 @@ bookingForm.addEventListener("submit",async event=>{
   bookingForm.hidden=true;bookingStatus.className="booking-status pending visible";
   const title=node("strong","","Request received · temporary seat hold");
   const detail=node("div","","Request ID: "+(booking.id||"not returned")+". Status: "+(booking.status||"pending")+". Payment: "+(booking.payment_status||"unpaid")+". Hold expires: "+(booking.hold_expires_at||"not returned")+". "+(data.message||"No ticket has been confirmed."));
-  bookingStatus.replaceChildren(title,detail);
+  const trackButton=node("button","track-pay","Track request & continue to payment ↗");
+  trackButton.type="button";
+  trackButton.addEventListener("click",()=>{
+   $("#trackBookingId").value=String(booking.id||"");
+   $("#trackBookingEmail").value=email;
+   closeBooking();
+   $("#booking-status-lookup").scrollIntoView({behavior:"smooth",block:"start"});
+   trackBookingForm.requestSubmit();
+  });
+  bookingStatus.replaceChildren(title,detail,trackButton);
  }catch(error){
   bookingStatus.className="booking-status error visible";
   bookingStatus.textContent=(error.message||"Unable to submit booking request.")+" No confirmed ticket was created.";
@@ -591,8 +600,27 @@ trackBookingForm.addEventListener("submit",async event=>{
       modal:{ondismiss:()=>{payBtn.disabled=false;payBtn.textContent="Pay securely with Razorpay ↗";}},
       handler:()=>{
        trackBookingResult.className="track-result visible pending";
-       trackBookingResult.replaceChildren(node("strong","","Payment submitted for verification"),node("div","","We are waiting for the signed payment confirmation from the server. This browser callback alone does not confirm your ticket. Refresh the booking status in a moment."));
+       trackBookingResult.replaceChildren(node("strong","","Payment submitted for verification"),node("div","","We are checking for the server's signed payment confirmation. Do not pay again while this status is being checked."));
+       const refreshBtn=node("button","track-pay","Refresh booking & ticket status ↻");
+       refreshBtn.type="button";
+       refreshBtn.addEventListener("click",()=>trackBookingForm.requestSubmit());
+       trackBookingResult.append(refreshBtn);
        payBtn.disabled=false;payBtn.textContent="Pay securely with Razorpay ↗";
+       let attempts=0;
+       const refreshAfterPayment=async()=>{
+        attempts+=1;
+        if(!trackBookingForm.isConnected||attempts>5)return;
+        try{
+         const params=new URLSearchParams({id,email});
+         const statusResponse=await fetch("/api/booking-status?"+params.toString(),{headers:{Accept:"application/json"},cache:"no-store"});
+         const statusData=await statusResponse.json();
+         const saved=statusData.booking||{};
+         if(statusResponse.ok&&saved.status==="confirmed"&&saved.ticket_reference){trackBookingForm.requestSubmit();return;}
+         if(statusResponse.ok&&saved.payment_status==="paid"&&!saved.ticket_reference){trackBookingResult.className="track-result visible pending";trackBookingResult.replaceChildren(node("strong","","Payment received — ticket needs review"),node("div","","The server recorded payment but has not confirmed a ticket. Do not pay again; contact support for reconciliation."));return;}
+        }catch(error){}
+        if(attempts<5)setTimeout(refreshAfterPayment,2500);
+       };
+       setTimeout(refreshAfterPayment,2000);
       }
      });
      checkout.on("payment.failed",()=>{
