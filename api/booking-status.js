@@ -27,7 +27,8 @@ module.exports = async function handler(req, res) {
     const rows = await sql`
       SELECT b.id, b.status, b.payment_status, b.seats, b.created_at,
              s.operator_name, s.bus_type, s.origin, s.destination,
-             s.journey_date, s.departure_time, s.arrival_time
+             s.journey_date, s.departure_time, s.arrival_time,
+             (SELECT max(h.expires_at) FROM booking_seat_holds h WHERE h.booking_id = b.id AND h.expires_at > now()) AS hold_expires_at
       FROM bookings b
       JOIN bus_services s ON s.id = b.service_id
       WHERE b.id = ${bookingId}::uuid
@@ -45,6 +46,7 @@ module.exports = async function handler(req, res) {
         payment_status: booking.payment_status,
         seats: booking.seats,
         created_at: booking.created_at,
+        hold_expires_at: booking.hold_expires_at,
         service: {
           operator_name: booking.operator_name,
           bus_type: booking.bus_type,
@@ -60,6 +62,9 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     if (error.code === "DB_NOT_CONFIGURED") {
       return res.status(503).json({ error: "Database is not configured" });
+    }
+    if (error.code === "42P01") {
+      return res.status(503).json({ error: "Seat reservation setup is incomplete. Apply migrations/001-seat-holds.sql to the production database." });
     }
     console.error("Booking status lookup failed", error);
     return res.status(500).json({ error: "Unable to look up this booking right now" });
