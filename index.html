@@ -3,8 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#102a43">
+<meta name="color-scheme" content="light">
 <meta name="description" content="Search bus routes and plan your next journey with HEPRA BUS.">
 <title>HEPRA BUS — Find your next journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:light;--navy:#102a43;--navy2:#163f62;--blue:#1672b8;--sky:#eaf5ff;--orange:#ffb020;--ink:#142b40;--muted:#61788b;--line:#dce6ef;--bg:#f4f7fb;--white:#fff;--green:#087f5b;--shadow:0 18px 50px rgba(16,42,67,.11)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}button,input{font:inherit}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit}.shell{max-width:1160px;margin:auto;padding:0 22px}
@@ -26,6 +30,57 @@ main{padding-bottom:40px}.section{padding-top:45px}.section-head{display:flex;ju
 @media(max-width:980px){.search-grid{grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) minmax(150px,.8fr)}.search-grid .primary{grid-column:1/-1;width:100%}.routes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.shell{padding:0 16px}header{height:67px}.brand{font-size:21px}.nav-right{gap:8px}.nav-right .nav-pill{display:none}.hero{padding:43px 0 91px}.hero h1{letter-spacing:-1.7px}.hero p{font-size:14px}.booking{padding:18px;border-radius:18px}.booking-top{align-items:start;flex-direction:column;gap:5px}.search-grid{grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);gap:9px}.field-date{grid-column:1/-1}.search-grid .primary{grid-column:1/-1}.field input{padding-left:36px}.swap{width:42px}.booking-foot{font-size:11px}.section{padding-top:35px}.section-head h2{font-size:22px}.routes{gap:9px}.route{padding:13px}.route-line{font-size:12px;gap:5px}.features{grid-template-columns:1fr}.bus-card{grid-template-columns:1fr;gap:15px;padding:16px}.bus-price{text-align:left;border-top:1px solid var(--line);padding-top:13px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.bus-price strong{margin:0}.bus-price small{display:none}.bus-price .availability{margin-left:auto}.times{gap:12px}.time strong{font-size:17px}.duration{min-width:65px}.results-heading h2{font-size:19px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* HEPRA BUS mobile-first refresh inspired by the supplied BusGo snippet */
+:root{--navy:#172554;--navy2:#253b80;--blue:#4f46e5;--sky:#eef2ff;--orange:#fbbf24;--ink:#172033;--muted:#667085;--line:#e4e7ec;--bg:#f6f7fb;--white:#fff;--green:#087f5b;--shadow:0 20px 55px rgba(23,37,84,.10)}
+body{font-family:Manrope,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg)}
+header{position:sticky;top:0;z-index:20;height:70px;background:rgba(23,37,84,.97);backdrop-filter:blur(16px);box-shadow:0 5px 24px #101a3a18}
+.brand-mark{border-radius:13px;background:linear-gradient(145deg,#fde68a,#fbbf24)}
+.hero{background:radial-gradient(ellipse at 85% 0%,#6566e8 0%,transparent 43%),linear-gradient(125deg,#172554 0%,#283b83 64%,#4338ca 100%);padding-top:58px}
+.hero h1{font-weight:900;letter-spacing:-2.8px}
+.hero h1 em{color:#fde68a}
+.eyebrow{background:#ffffff10;backdrop-filter:blur(8px)}
+.booking{border-radius:24px;box-shadow:0 24px 60px rgba(23,37,84,.12);border-color:#e7e9f3}
+.booking-top h2{font-weight:850}
+.field input{background:#fbfcff;border-radius:14px;border-color:#e1e5f0}
+.field input:focus{border-color:#6366f1;box-shadow:0 0 0 4px #6366f11a}
+.swap{border-radius:14px;color:#4338ca;background:#f7f7ff;border-color:#e0e3f5}
+.primary{border-radius:14px;background:#fbbf24;box-shadow:0 4px 0 #d99a0c;font-weight:900}
+.route{border-radius:17px;border-color:#e7e9f1;box-shadow:0 3px 12px #18264a05}
+.route:hover{border-color:#b6b8fb;box-shadow:0 12px 28px #312e8110}
+.route-icon,.feature-icon{background:#eef2ff;color:#3730a3}
+.bus-card,.empty,.feature,.faq-item{border-radius:18px;border-color:#e7e9f1;box-shadow:0 5px 20px #18264a06}
+.sort-control{border-radius:12px}
+.strip-item{border-radius:16px;background:#fff;border-color:#e7e9f1}
+.demo-note{border-radius:15px}
+footer{background:#111c42}
+@media(max-width:640px){
+  .shell{padding-left:16px;padding-right:16px}
+  header{height:64px}
+  .hero{padding:38px 0 88px}
+  .hero h1{font-size:clamp(34px,9vw,44px);letter-spacing:-1.8px;line-height:1.08}
+  .hero p{max-width:330px;font-size:13px}
+  .booking-wrap{margin-top:-58px}
+  .booking{padding:17px;border-radius:21px}
+  .booking-top h2{font-size:18px}
+  .booking-top span{font-size:11px}
+  .field label{font-size:10px;letter-spacing:.8px}
+  .field input{height:49px;font-size:13px}
+  .swap{height:49px}
+  .primary{height:50px}
+  .booking-foot{gap:9px}
+  .booking-foot>span:last-child{width:100%;line-height:1.5}
+  .section-head{align-items:start}
+  .section-head h2{font-size:21px;letter-spacing:-.6px}
+  .route{min-height:130px;padding:13px;border-radius:16px}
+  .route-icon{margin-bottom:11px}
+  .route-line{flex-wrap:wrap;font-size:12px}
+  .route small{font-size:11px}
+  .bus-card{border-radius:17px}
+  .features{gap:10px}
+  .feature{padding:18px}
+}
+
 </style>
 </head>
 <body>
@@ -65,13 +120,16 @@ main{padding-bottom:40px}.section{padding-top:45px}.section-head{display:flex;ju
 <article class="feature"><div class="feature-icon">🧭</div><h3>Plan with clarity</h3><p>See departure and arrival times, service type and fares when verified operator inventory is available.</p></article>
 <article class="feature"><div class="feature-icon">🔐</div><h3>Built for the next step</h3><p>Seat holds, ticket issuance and online payments will be enabled only after secure integrations are complete.</p></article>
 </div>
-<div class="section-head" style="margin-top:36px"><div><h2>Frequently asked questions</h2><p>What to know before you search.</p></div></div>\n<div class="faq-grid"><details class="faq-item"><summary>How do I search for a bus?</summary><p>Enter your starting city, destination and travel date, then select Search buses. Popular route cards can fill in the cities for you.</p></details><details class="faq-item"><summary>Why are no buses appearing?</summary><p>Only services configured in the connected database are displayed. If operator inventory has not been added, the search can return no results.</p></details><details class="faq-item"><summary>Can I reserve a seat or pay online?</summary><p>Not yet. Seat locking, payment processing and ticket confirmation are not enabled in this early-access build.</p></details><details class="faq-item"><summary>Are fares and availability live?</summary><p>They reflect the records currently configured by the service operator. They should not be treated as live inventory until a verified operator integration is connected.</p></details></div>\n<div class="demo-note"><strong>Early-access build:</strong> this website is a booking-flow starter. Real operator inventory, seat locking, ticket confirmation and online payments are not enabled. No payment is taken through this page.</div>
+<div class="section-head" style="margin-top:36px"><div><h2>Frequently asked questions</h2><p>What to know before you search.</p></div></div>
+<div class="faq-grid"><details class="faq-item"><summary>How do I search for a bus?</summary><p>Enter your starting city, destination and travel date, then select Search buses. Popular route cards can fill in the cities for you.</p></details><details class="faq-item"><summary>Why are no buses appearing?</summary><p>Only services configured in the connected database are displayed. If operator inventory has not been added, the search can return no results.</p></details><details class="faq-item"><summary>Can I reserve a seat or pay online?</summary><p>Not yet. Seat locking, payment processing and ticket confirmation are not enabled in this early-access build.</p></details><details class="faq-item"><summary>Are fares and availability live?</summary><p>They reflect the records currently configured by the service operator. They should not be treated as live inventory until a verified operator integration is connected.</p></details></div>
+<div class="demo-note"><strong>Early-access build:</strong> this website is a booking-flow starter. Real operator inventory, seat locking, ticket confirmation and online payments are not enabled. No payment is taken through this page.</div>
 </div>
 </main>
 <footer><div class="shell footer-inner"><span><strong>HEPRA BUS</strong> · Find your next journey.</span><span>© <span id="year"></span> HEPRA BUS. Travel thoughtfully.</span></div></footer>
 <script>
 const $=s=>document.querySelector(s);
-const form=$("#searchForm"),from=$("#from"),to=$("#to"),date=$("#date"),btn=$("#searchBtn"),section=$("#resultsSection"),statusEl=$("#status"),results=$("#results"),sortSelect=$("#sortResults");\nlet currentBuses=[];
+const form=$("#searchForm"),from=$("#from"),to=$("#to"),date=$("#date"),btn=$("#searchBtn"),section=$("#resultsSection"),statusEl=$("#status"),results=$("#results"),sortSelect=$("#sortResults");
+let currentBuses=[];
 const today=new Date();date.min=[today.getFullYear(),String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");date.value=date.min;$("#year").textContent=new Date().getFullYear();
 $("#swapBtn").addEventListener("click",()=>{const old=from.value;from.value=to.value;to.value=old;from.focus()});
 document.querySelectorAll(".route").forEach(button=>button.addEventListener("click",()=>{from.value=button.dataset.from;to.value=button.dataset.to;$("#search").scrollIntoView({behavior:"smooth",block:"center"});date.focus()}));
