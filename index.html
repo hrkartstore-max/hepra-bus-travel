@@ -122,6 +122,18 @@ $("#demoBtn").addEventListener("click",()=>{
  section.hidden=false;statusEl.textContent="DEMO PREVIEW · Sample services and fares only. Not real operator inventory; no seats can be booked.";
  activeFilter="all";document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item.dataset.filter==="all";item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses();section.scrollIntoView({behavior:"smooth",block:"start"});
 });
+function useDemoBuses(origin,destination,reason){
+ demoMode=true;currentRoute={from:origin,to:destination};
+ currentBuses=[
+  {operator_name:"HEPRA Signature Coach · Demo",bus_type:"AC Sleeper · 2+1 Berth",departure_time:"21:30",arrival_time:"05:30",fare:1299,seats_available:12},
+  {operator_name:"Southern Comfort Express · Demo",bus_type:"AC Seater · Semi Sleeper",departure_time:"22:15",arrival_time:"06:45",fare:899,seats_available:18},
+  {operator_name:"Heritage Nightliner · Demo",bus_type:"Non AC Sleeper",departure_time:"20:45",arrival_time:"05:15",fare:749,seats_available:7},
+  {operator_name:"Cityline Premium · Demo",bus_type:"AC Seater",departure_time:"23:00",arrival_time:"07:00",fare:999,seats_available:21}
+ ];
+ activeFilter="all";document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item.dataset.filter==="all";item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});
+ statusEl.textContent="DEMO PREVIEW · "+reason+" Sample buses and fares only — not live inventory. No booking or payment is available.";
+ renderBuses();
+}
 sortSelect.addEventListener("change",renderBuses);
 document.querySelectorAll("[data-filter]").forEach(chip=>chip.addEventListener("click",()=>{activeFilter=chip.dataset.filter;document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item===chip;item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses()}));
 form.addEventListener("submit",async event=>{
@@ -135,10 +147,10 @@ form.addEventListener("submit",async event=>{
   let data={};try{data=await response.json()}catch(e){}
   if(!response.ok)throw new Error(data.error||"Search is temporarily unavailable.");
   const buses=Array.isArray(data.buses)?data.buses:[];currentRoute={from:origin,to:destination};
-  if(!buses.length){statusEl.textContent="";showEmpty("No services found just yet","There are no configured services for "+origin+" to "+destination+" on "+journeyDate+". Try another route or date.");return}
+  if(!buses.length){useDemoBuses(origin,destination,"No live services are configured for this route/date.");return}
   statusEl.textContent=buses.length+" service"+(buses.length===1?"":"s")+" found · "+journeyDate;
   currentBuses=buses;activeFilter="all";document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item.dataset.filter==="all";item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses();
- }catch(error){statusEl.textContent="";showEmpty("We couldn't complete that search",error.message||"Please try again in a moment.")}
+ }catch(error){useDemoBuses(origin,destination,"Live search is unavailable ("+(error.message||"connection error")+").");}
  finally{btn.disabled=false;btn.innerHTML='Discover services <span aria-hidden="true">↗</span>'}
  section.scrollIntoView({behavior:"smooth",block:"start"});
 });
