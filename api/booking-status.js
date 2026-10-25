@@ -26,6 +26,7 @@ module.exports = async function handler(req, res) {
     const sql = getDb();
     const rows = await sql`
       SELECT b.id, b.status, b.payment_status, b.seats, b.created_at,
+             b.ticket_reference, b.amount_paise, b.currency, b.payment_verified_at,
              s.operator_name, s.bus_type, s.origin, s.destination,
              s.journey_date, s.departure_time, s.arrival_time,
              (SELECT max(h.expires_at) FROM booking_seat_holds h WHERE h.booking_id = b.id AND h.expires_at > now()) AS hold_expires_at
@@ -44,6 +45,10 @@ module.exports = async function handler(req, res) {
         id: booking.id,
         status: booking.status,
         payment_status: booking.payment_status,
+        ticket_reference: booking.ticket_reference,
+        amount_paise: booking.amount_paise,
+        currency: booking.currency,
+        payment_verified_at: booking.payment_verified_at,
         seats: booking.seats,
         created_at: booking.created_at,
         hold_expires_at: booking.hold_expires_at,
