@@ -1,44 +1,72 @@
-# HEPRA BUS — booking experience starter
+# HEPRA BUS
 
-Responsive route-search UI with Vercel serverless API endpoints and a PostgreSQL schema.
+Responsive bus-search and booking-request prototype with Vercel serverless APIs, Neon PostgreSQL, temporary seat holds, Razorpay payment-order support, signed payment webhooks, ticket references, status lookup and pending-request cancellation.
 
-## Included
-- `index.html`: responsive search page, swap cities, popular-route shortcuts, accessible loading/empty/error states, and bus result cards
-- `GET /api/health`: database health check
-- `GET /api/buses?from=Chennai&to=Madurai&date=YYYY-MM-DD`: validated route search
-- `POST /api/bookings`: creates a pending, unpaid booking request (no seat hold or payment)
-- `GET /api/booking-status?id=<booking-uuid>&email=<booking-email>`: looks up the saved request and any active hold expiry when both reference and email match
-- `POST /api/booking-cancel`: cancels a pending request and releases its holds after reference/email verification
-- `migrations/002-cancel-booking-release-seats.sql`: atomic cancellation function that locks the booking row, updates the request and releases holds
-- `migrations/001-seat-holds.sql`: adds seat-hold storage and an atomic PostgreSQL function to serialize seat claims per service
-- `schema.sql`: PostgreSQL tables and route/search indexes
+## Features
 
-## Deploy to Vercel
-1. Import this GitHub repository into Vercel.
-2. Framework preset: **Other**. Leave the build command blank and set output directory to `.`.
-3. Create a Neon PostgreSQL database and run `schema.sql` in its SQL editor.
-4. **After `schema.sql`, run `migrations/001-seat-holds.sql` and then `migrations/002-cancel-booking-release-seats.sql` in the same database SQL editor.** Booking holds require migration 001; cancellation requires migration 002.
-5. Add `DATABASE_URL` to Vercel environment variables for Preview and Production.
-6. Redeploy and open `/api/health`. Expected response: `{"ok":true,"database":"connected"}`.
-7. Add verified operator services to `bus_services`. The project intentionally includes no fake bus inventory.
+- Responsive route search and bus listing.
+- `GET /api/health`: database health check.
+- `GET /api/buses?from=Chennai&to=Madurai&date=YYYY-MM-DD`: verified service search.
+- `POST /api/bookings`: pending booking request and 10-minute database-backed seat holds.
+- `GET /api/booking-status?id=<booking-uuid>&email=<booking-email>`: request, payment, seat-hold and ticket status.
+- `POST /api/booking-cancel`: cancel an unpaid pending request and release its temporary holds.
+- `POST /api/payments/create-order`: calculates the amount server-side and creates/reuses a Razorpay order for a booking with active holds.
+- `POST /api/payments/webhook`: verifies the Razorpay webhook HMAC signature and only confirms a ticket after a captured payment matches the stored order amount/currency and all seat holds are still active.
+- PostgreSQL functions serialize seat claims per service, protect against duplicate active/confirmed seat claims, make webhook confirmation idempotent, and create a ticket reference after verified payment.
 
-## Local checks
+## Required database setup
+
+Use the same Neon database referenced by Vercel's `DATABASE_URL`. Run the SQL files in this order in Neon SQL Editor:
+
+1. `schema.sql`
+2. `migrations/001-seat-holds.sql`
+3. `migrations/002-cancel-booking-release-seats.sql`
+4. `migrations/003-razorpay-payments-tickets.sql`
+
+Do not enable payment traffic until all migrations succeed. Migration 003 also updates the booking-hold and cancellation functions for the payment lifecycle. If earlier migrations were already applied, still run migration 003 after them.
+
+## Vercel environment variables
+
+Set these in Vercel Project Settings → Environment Variables, for the environment you intend to test:
+
+- `DATABASE_URL`: Neon PostgreSQL connection string.
+- `RAZORPAY_KEY_ID`: Razorpay key ID. Use a test-mode key first.
+- `RAZORPAY_KEY_SECRET`: Razorpay secret. Server-side only; never put it in frontend code.
+- `RAZORPAY_WEBHOOK_SECRET`: a webhook secret you create in Razorpay dashboard. Keep it distinct from the API key secret.
+
+A placeholder template is in `.env.example`; it contains no working credentials.
+
+## Razorpay test-mode setup
+
+1. Create/configure your Razorpay account and use **test mode** credentials first.
+2. Add all three Razorpay environment variables in Vercel.
+3. In Razorpay Dashboard → Webhooks, add the deployed URL:
+   `https://hepra-bus-travel.vercel.app/api/payments/webhook`
+4. Use the exact same webhook secret in Razorpay and `RAZORPAY_WEBHOOK_SECRET`.
+5. Subscribe to the `payment.captured` event.
+6. Redeploy the Vercel project after changing environment variables.
+7. Test using a verified service and active seat hold. Confirm that the webhook, not the browser callback, changes the booking to paid/confirmed and issues a ticket reference.
+
+The checkout browser callback is deliberately not trusted to confirm a ticket. A signed server webhook is required.
+
+## Local checks and development
+
 ```bash
 npm install
 npm run check
 npm run dev
 ```
 
-## Example search
-```bash
-curl 'https://YOUR-DOMAIN/api/buses?from=Chennai&to=Madurai&date=2026-11-01'
-```
+`npm run check` checks JavaScript syntax for the serverless handlers. It does not replace integration tests against a test database and Razorpay test account.
 
-## Booking status lookup
+## Operational safeguards and known limitations
 
-After a booking request returns a reference, enter that reference and the same email address in the on-page status tracker. The endpoint returns only the request status, payment status, selected seat preferences, journey summary, and active hold expiry. It does not return passenger contact details. Seat claims are serialized per service in PostgreSQL and held for 10 minutes; expired holds are cleaned up when another reservation request is made. A pending request can be cancelled from the tracker with its reference and matching email, which releases its active holds. This is a temporary hold, not a paid or confirmed ticket. Current seat labels are a basic layout and must be mapped to verified operator inventory before real customer use.
+- Temporary seat holds last 10 minutes. If payment is captured after a hold expires, the system records the captured payment for manual reconciliation and **does not issue a ticket**.
+- Confirmed seats remain reserved in the database; they are not released by temporary-hold cleanup.
+- A ticket reference is not an operator-issued boarding pass until real operator inventory, seat numbering, passenger requirements and boarding workflows are integrated.
+- The current UI's seat labels are illustrative. Map them to actual operator seat layouts before accepting real passengers.
+- No automatic refunds, email/SMS delivery, customer account authentication, admin console, operator inventory sync, automated expiry worker, production rate limiting, fraud controls, or end-to-end integration test suite is included yet.
+- The system intentionally does not insert sample bus inventory. Only add verified operator services.
+- Before launch, configure monitoring and backups, add rate limiting, privacy/retention controls, test webhook retries and duplicate events, run concurrency tests, and complete a security review.
 
-## Production readiness
-This is still a starter, not a live ticketing system. Booking requests can create a temporary 10-minute seat hold after the migration is installed, but there is no payment processing, ticket confirmation, operator inventory sync, verified seat-layout mapping, customer authentication, or rate limiting yet. Cancellation currently applies only to pending requests; it does not process refunds. Before accepting real customers, implement transactional seat holds with expiry and concurrency protection, authentication and booking ownership, payment-provider order creation and signed/idempotent webhooks, server-side amount verification, cancellations/refunds, ticket delivery, operator inventory integration, rate limits, monitoring, privacy/retention controls, and automated tests.
-
-Never commit `.env` or credentials. Do not collect customer data until the required security and privacy controls are ready.
+Never commit real `.env` files, payment secrets, database credentials, or customer data. Do not advertise the site as live ticketing until the migrations, Vercel deployment, test payments, webhook delivery, and operator inventory have all been verified.
