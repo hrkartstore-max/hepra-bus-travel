@@ -45,8 +45,17 @@ module.exports = async function handler(req,res) {
     }
     const id=typeof req.body?.id==="string"?req.body.id:"";
     if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return res.status(400).json({error:"Valid service ID is required"});
-    if(typeof req.body?.active!=="boolean") return res.status(400).json({error:"Active must be true or false"});
-    const rows=await sql`UPDATE bus_services SET active=${req.body.active} WHERE id=${id}::uuid RETURNING id,active`;
+    if(typeof req.body?.active==="boolean") {
+      const rows=await sql`UPDATE bus_services SET active=${req.body.active} WHERE id=${id}::uuid RETURNING id,active`;
+      if(!rows.length) return res.status(404).json({error:"Service not found"});
+      return res.status(200).json({service:rows[0]});
+    }
+    const fare=Number(req.body?.fare);
+    const seats_available=Number(req.body?.seats_available);
+    if(!Number.isFinite(fare) || fare<0 || fare>1000000 || !Number.isInteger(seats_available) || seats_available<0 || seats_available>1000) {
+      return res.status(400).json({error:"Fare must be ₹0–₹10,00,000 and available seats must be an integer from 0 to 1000"});
+    }
+    const rows=await sql`UPDATE bus_services SET fare=${fare}, seats_available=${seats_available} WHERE id=${id}::uuid RETURNING id,operator_name,bus_type,origin,destination,journey_date,departure_time,arrival_time,fare,seats_available,active`;
     if(!rows.length) return res.status(404).json({error:"Service not found"});
     return res.status(200).json({service:rows[0]});
   } catch(error) {
