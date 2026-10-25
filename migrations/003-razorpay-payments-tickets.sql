@@ -86,7 +86,7 @@ CREATE OR REPLACE FUNCTION confirm_booking_payment(
   p_amount_paise bigint,
   p_currency text
 )
-RETURNS TABLE(booking_id uuid, booking_status text, payment_status text, ticket_reference text, already_confirmed boolean)
+RETURNS TABLE(booking_id uuid, booking_status text, payment_status text, ticket_reference text, already_confirmed boolean, review_required boolean)
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -104,7 +104,7 @@ BEGIN
 
   IF v_booking.payment_status = 'paid' AND v_booking.status = 'confirmed' THEN
     IF v_booking.payment_provider_payment_id = p_payment_id THEN
-      RETURN QUERY SELECT v_booking.id, v_booking.status, v_booking.payment_status, v_booking.ticket_reference, true;
+      RETURN QUERY SELECT v_booking.id, v_booking.status, v_booking.payment_status, v_booking.ticket_reference, true, false;
       RETURN;
     END IF;
     RAISE EXCEPTION 'Booking already confirmed with a different payment' USING ERRCODE = '23505';
@@ -123,7 +123,14 @@ BEGIN
       AND h.hold_status = 'held'
       AND h.expires_at > now()
   ) OR (SELECT count(*) FROM booking_seat_holds h WHERE h.booking_id = v_booking.id AND h.hold_status = 'held' AND h.expires_at > now()) <> cardinality(v_booking.seats) THEN
-    RAISE EXCEPTION 'Seat hold expired; payment needs manual review' USING ERRCODE = '22023';
+    -- Record verified money received, but do NOT issue a ticket without valid held seats.
+    UPDATE bookings
+    SET payment_status = 'paid',
+        payment_provider_payment_id = p_payment_id,
+        payment_verified_at = now()
+    WHERE id = v_booking.id;
+    RETURN QUERY SELECT v_booking.id, v_booking.status, 'paid'::text, NULL::text, false, true;
+    RETURN;
   END IF;
 
   v_ticket := 'HB-' || upper(substr(replace(v_booking.id::text, '-', ''), 1, 10));
@@ -141,6 +148,6 @@ BEGIN
       expires_at = 'infinity'::timestamptz
   WHERE booking_id = v_booking.id;
 
-  RETURN QUERY SELECT v_booking.id, 'confirmed'::text, 'paid'::text, v_ticket, false;
+  RETURN QUERY SELECT v_booking.id, 'confirmed'::text, 'paid'::text, v_ticket, false, false;
 END;
 $$;
