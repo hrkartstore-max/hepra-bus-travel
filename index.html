@@ -207,7 +207,15 @@ footer{background:#0b2a26;color:#c5d8d2}
 .track-cancel:hover{background:#f8e6e2}
 .track-cancel:disabled{opacity:.6;cursor:wait}
 
+
+/* V7 payment and ticket confirmation UI */
+.track-pay{margin-top:14px;margin-right:8px;border:0;background:linear-gradient(135deg,#e8d3a4,#c5a366);color:#1a2330;border-radius:10px;padding:12px 16px;font-size:11px;font-weight:800}
+.track-pay:disabled{opacity:.6;cursor:wait}
+.track-ticket{border:1px solid #9dc7a6;background:#eaf5ec;color:#215632;border-radius:10px;padding:12px;margin-top:12px;font-size:11px;line-height:1.7}
+.track-ticket strong{display:block;font:800 16px Manrope,sans-serif;letter-spacing:1px}
+
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 </head>
 <body>
 <div class="announcement"><b>HEPRA BUS</b> &nbsp;·&nbsp; A more considered way to travel</div>
@@ -525,7 +533,9 @@ trackBookingForm.addEventListener("submit",async event=>{
   const grid=node("div","track-detail-grid");
   const details=[
    ["Reference",b.id||"—"],
+   ["Ticket",b.ticket_reference||"Not issued"],
    ["Payment",b.payment_status||"unpaid"],
+   ["Amount",b.amount_paise!=null?new Intl.NumberFormat("en-IN",{style:"currency",currency:b.currency||"INR"}).format(Number(b.amount_paise)/100):"—"],
    ["Seat hold",b.hold_expires_at?String(b.hold_expires_at):"None active"],
    ["Journey",(service.origin||"—")+" → "+(service.destination||"—")],
    ["Travel date",service.journey_date?String(service.journey_date).slice(0,10):"—"],
@@ -535,7 +545,54 @@ trackBookingForm.addEventListener("submit",async event=>{
   details.forEach(([label,value])=>{const cell=node("div","track-detail"),small=node("span","",label),strong=node("b","",value);cell.append(small,strong);grid.append(cell)});
   trackBookingResult.className="track-result visible "+(pending?"pending":"");
   trackBookingResult.replaceChildren(title,message,grid);
-  if(b.status==="pending"){
+  if(b.status==="confirmed"&&b.ticket_reference){
+   const ticket=node("div","track-ticket");
+   ticket.append(node("div","","Payment verified · Ticket confirmed"),node("strong","",b.ticket_reference),node("div","","Keep this reference for your journey."));
+   trackBookingResult.append(ticket);
+  }
+  if(b.status==="pending"&&b.payment_status==="paid"&&!b.ticket_reference){
+   const review=node("div","track-ticket");
+   review.textContent="Payment was recorded, but a valid seat hold was not available to confirm a ticket. Please contact the operator/support team for manual reconciliation. Do not pay again.";
+   trackBookingResult.append(review);
+  }
+  if(b.status==="pending"&&b.payment_status!=="paid"&&b.hold_expires_at){
+   const payBtn=node("button","track-pay","Pay securely with Razorpay ↗");
+   payBtn.type="button";
+   payBtn.addEventListener("click",async()=>{
+    if(typeof window.Razorpay!=="function"){
+     trackBookingResult.className="track-result visible error";
+     trackBookingResult.textContent="Secure checkout did not load. Check your connection and try again.";
+     return;
+    }
+    payBtn.disabled=true;payBtn.textContent="Preparing secure checkout…";
+    try{
+     const response=await fetch("/api/payments/create-order",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({id,email})});
+     let order={};try{order=await response.json()}catch(error){}
+     if(!response.ok)throw new Error(order.error||"Unable to prepare payment.");
+     const checkout=new window.Razorpay({
+      key:order.keyId,order_id:order.orderId,amount:order.amount,currency:order.currency||"INR",
+      name:"HEPRA BUS",description:"Bus ticket booking",prefill:{email},
+      theme:{color:"#0f3b36"},
+      modal:{ondismiss:()=>{payBtn.disabled=false;payBtn.textContent="Pay securely with Razorpay ↗";}},
+      handler:()=>{
+       trackBookingResult.className="track-result visible pending";
+       trackBookingResult.replaceChildren(node("strong","","Payment submitted for verification"),node("div","","We are waiting for the signed payment confirmation from the server. This browser callback alone does not confirm your ticket. Refresh the booking status in a moment."));
+       payBtn.disabled=false;payBtn.textContent="Pay securely with Razorpay ↗";
+      }
+     });
+     checkout.on("payment.failed",()=>{
+      trackBookingResult.className="track-result visible error";
+      trackBookingResult.textContent="Payment was not confirmed. Check your payment status before retrying.";
+      payBtn.disabled=false;payBtn.textContent="Retry secure payment";
+     });
+     checkout.open();
+    }catch(error){
+     trackBookingResult.className="track-result visible error";
+     trackBookingResult.textContent=(error.message||"Unable to start secure checkout.")+"";
+     payBtn.disabled=false;payBtn.textContent="Pay securely with Razorpay ↗";
+    }
+   });
+   trackBookingResult.append(payBtn);
    const cancelBtn=node("button","track-cancel","Cancel request & release seat holds");
    cancelBtn.type="button";
    cancelBtn.addEventListener("click",async()=>{
