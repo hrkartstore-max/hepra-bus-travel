@@ -1,31 +1,21 @@
-# HEPRA BUS — bus booking starter
+# HEPRA BUS — booking experience starter
 
-A responsive booking-search frontend and Vercel serverless API starter.
+Responsive route-search UI with Vercel serverless API endpoints and a PostgreSQL schema.
 
 ## Included
-- `index.html`: responsive HEPRA BUS landing page and route search UI
+- `index.html`: responsive search page, swap cities, popular-route shortcuts, accessible loading/empty/error states, and bus result cards
 - `GET /api/health`: database health check
-- `GET /api/buses?from=Chennai&to=Madurai&date=YYYY-MM-DD`: search configured services
+- `GET /api/buses?from=Chennai&to=Madurai&date=YYYY-MM-DD`: validated route search
 - `POST /api/bookings`: creates a pending, unpaid booking record
 - `schema.sql`: PostgreSQL tables and route/search indexes
 
 ## Deploy to Vercel
 1. Import this GitHub repository into Vercel.
-2. Framework preset: **Other**. Leave build command blank and output directory as `.`.
+2. Framework preset: **Other**. Leave the build command blank and set output directory to `.`.
 3. Create a Neon PostgreSQL database and run `schema.sql` in its SQL editor.
-4. Add `DATABASE_URL` to Vercel project environment variables for Preview and Production.
-5. Redeploy and open `/api/health`; it should return `{"ok":true,"database":"connected"}`.
-6. Add real, verified bus services to `bus_services`; no fake inventory is seeded.
-
-## API example
-```bash
-curl 'https://YOUR-DOMAIN/api/buses?from=Chennai&to=Madurai&date=2026-11-01'
-```
-
-## Production blockers — do not accept live payments yet
-This is a starter, not a production-ready ticketing system. Payment is not integrated, the UI does not confirm tickets, and booking creation does not reserve seats. Before accepting customers, implement atomic seat holds with expiry, transactions/concurrency protection, authentication and booking ownership, server-side payment orders, signed and idempotent payment webhooks, amount verification, cancellations/refunds, ticket delivery, operator inventory integration, rate limits, monitoring, privacy/retention policy, and tests.
-
-Never commit `.env` or credentials. Do not use customer data until privacy and security controls are ready.
+4. Add `DATABASE_URL` to Vercel environment variables for Preview and Production.
+5. Redeploy and open `/api/health`. Expected response: `{"ok":true,"database":"connected"}`.
+6. Add verified operator services to `bus_services`. The project intentionally includes no fake bus inventory.
 
 ## Local checks
 ```bash
@@ -33,3 +23,13 @@ npm install
 npm run check
 npm run dev
 ```
+
+## Example search
+```bash
+curl 'https://YOUR-DOMAIN/api/buses?from=Chennai&to=Madurai&date=2026-11-01'
+```
+
+## Production readiness
+This is still a starter, not a live ticketing system. The UI searches services but does not complete a purchase. Booking creation only records a pending/unpaid request; it does not hold seats or confirm a ticket. Before accepting real customers, implement transactional seat holds with expiry and concurrency protection, authentication and booking ownership, payment-provider order creation and signed/idempotent webhooks, server-side amount verification, cancellations/refunds, ticket delivery, operator inventory integration, rate limits, monitoring, privacy/retention controls, and automated tests.
+
+Never commit `.env` or credentials. Do not collect customer data until the required security and privacy controls are ready.
