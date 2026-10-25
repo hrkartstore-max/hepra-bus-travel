@@ -613,7 +613,7 @@ trackBookingForm.addEventListener("submit",async event=>{
      cancelBtn.disabled=false;cancelBtn.textContent="Cancel request & release seat holds";
     }
    });
-   trackBookingResult.append(cancelBtn);
+   if(b.payment_status==="unpaid")trackBookingResult.append(cancelBtn);
   }
  }catch(error){
   trackBookingResult.className="track-result visible error";
