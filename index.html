@@ -79,7 +79,10 @@ main{padding:55px 0 70px}.section{margin-top:56px}.section:first-child{margin-to
 const $=s=>document.querySelector(s);
 const form=$("#searchForm"),from=$("#from"),to=$("#to"),date=$("#date"),btn=$("#searchBtn"),section=$("#resultsSection"),statusEl=$("#status"),results=$("#results"),sortSelect=$("#sortResults"),filterCount=$("#filterCount");
 let currentBuses=[],activeFilter="all";
-function localISO(day){return [day.getFullYear(),String(day.getMonth()+1).padStart(2,"0"),String(day.getDate()).padStart(2,"0")].join("-")}\nconst today=new Date();date.min=localISO(today);date.value=date.min;$("#year").textContent=new Date().getFullYear();\ndocument.querySelectorAll("[data-date-offset]").forEach(chip=>chip.addEventListener("click",()=>{const day=new Date();day.setDate(day.getDate()+Number(chip.dataset.dateOffset));date.value=localISO(day);document.querySelectorAll("[data-date-offset]").forEach(item=>item.classList.toggle("active",item===chip));}));\ndate.addEventListener("change",()=>document.querySelectorAll("[data-date-offset]").forEach(item=>item.classList.toggle("active",date.value===(()=>{const d=new Date();d.setDate(d.getDate()+Number(item.dataset.dateOffset));return localISO(d)})())));
+function localISO(day){return [day.getFullYear(),String(day.getMonth()+1).padStart(2,"0"),String(day.getDate()).padStart(2,"0")].join("-")}
+const today=new Date();date.min=localISO(today);date.value=date.min;$("#year").textContent=new Date().getFullYear();
+document.querySelectorAll("[data-date-offset]").forEach(chip=>chip.addEventListener("click",()=>{const day=new Date();day.setDate(day.getDate()+Number(chip.dataset.dateOffset));date.value=localISO(day);document.querySelectorAll("[data-date-offset]").forEach(item=>item.classList.toggle("active",item===chip));}));
+date.addEventListener("change",()=>document.querySelectorAll("[data-date-offset]").forEach(item=>item.classList.toggle("active",date.value===(()=>{const d=new Date();d.setDate(d.getDate()+Number(item.dataset.dateOffset));return localISO(d)})())));
 $("#swapBtn").addEventListener("click",()=>{const old=from.value;from.value=to.value;to.value=old;from.focus()});
 document.querySelectorAll(".route").forEach(button=>button.addEventListener("click",()=>{from.value=button.dataset.from;to.value=button.dataset.to;$("#search").scrollIntoView({behavior:"smooth",block:"center"});date.focus()}));
 function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el}
@@ -105,7 +108,8 @@ function renderBuses(){
   card.append(left,price);results.append(card);
  });
 }
-sortSelect.addEventListener("change",renderBuses);\ndocument.querySelectorAll("[data-filter]").forEach(chip=>chip.addEventListener("click",()=>{activeFilter=chip.dataset.filter;document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item===chip;item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses()}));
+sortSelect.addEventListener("change",renderBuses);
+document.querySelectorAll("[data-filter]").forEach(chip=>chip.addEventListener("click",()=>{activeFilter=chip.dataset.filter;document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item===chip;item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses()}));
 form.addEventListener("submit",async event=>{
  event.preventDefault();const origin=from.value.trim(),destination=to.value.trim(),journeyDate=date.value;
  if(origin.toLowerCase()===destination.toLowerCase()){section.hidden=false;statusEl.textContent="";results.replaceChildren();showEmpty("Choose two different cities","Your departure and destination need to be different.");section.scrollIntoView({behavior:"smooth",block:"start"});return}
