@@ -166,6 +166,22 @@ footer{background:#0b2a26;color:#c5d8d2}
  .booking-seat{min-height:43px}
 }
 
+
+/* V3 coach-map polish */
+.booking-cockpit{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;margin-bottom:10px;border:1px solid #dce4dc;background:linear-gradient(135deg,#eef4ef,#e2ece5);border-radius:12px;color:#456257}
+.booking-cockpit span{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.booking-cockpit strong{font-size:10px;color:#0f3b36}
+.booking-seat-grid{display:flex;flex-direction:column;gap:8px;padding:13px;background:#f5f4ee;border:1px solid #e7e2d7;border-radius:15px}
+.booking-seat-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 20px minmax(0,1fr) minmax(0,1fr);gap:7px;align-items:center}
+.booking-seat-row .booking-seat{width:100%;min-width:0}
+.booking-aisle{display:flex;justify-content:center;align-items:center;height:100%;font-size:8px;color:#b0aa9a;writing-mode:vertical-rl;letter-spacing:2px}
+.booking-seat-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px}
+.booking-seat-legend span{display:inline-flex;align-items:center;gap:6px;font-size:9px;color:#707b73}
+.booking-seat-legend i{display:inline-block;width:10px;height:10px;border:1px solid #91a99b;border-radius:3px;background:#fffefa}
+.booking-seat-legend .selected-key{background:#0f3b36;border-color:#0f3b36}
+.booking-seat-legend .aisle-key{border:0;background:#e7e2d7}
+@media(max-width:390px){.booking-seat-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 12px minmax(0,1fr) minmax(0,1fr);gap:5px}.booking-seat{font-size:10px}.booking-seat-legend{gap:9px}}
+
 </style>
 </head>
 <body>
@@ -364,7 +380,7 @@ form.addEventListener("submit",async event=>{
 /* V2 interactive booking request flow */
 const bookingOverlay=$("#bookingOverlay"),bookingForm=$("#bookingForm"),bookingStatus=$("#bookingStatus"),bookingSeatGrid=$("#bookingSeatGrid"),bookingSubmit=$("#bookingSubmit");
 let activeBookingBus=null,selectedBookingSeats=new Set(),lastBookingTrigger=null;
-const bookingSeatNames=["A1","A2","B1","B2","A3","A4","B3","B4","C1","C2","D1","D2","C3","C4","D3","D4"];
+const bookingSeatRows=[["A1","A2","A3","A4"],["B1","B2","B3","B4"],["C1","C2","C3","C4"],["D1","D2","D3","D4"]];
 function moneyINR(value){const amount=Number(value);return Number.isFinite(amount)?"₹"+amount.toLocaleString("en-IN",{maximumFractionDigits:2}):"—"}
 function openBooking(bus){
  activeBookingBus=bus;selectedBookingSeats=new Set();lastBookingTrigger=document.activeElement;
@@ -382,15 +398,21 @@ function openBooking(bus){
  $("#seatInventoryNote").textContent=demoMode?"DEMO ONLY: these sample seats are fictional and do not represent a real coach.":"Illustrative seat preferences only. The connected backend has seat counts, not seat-level inventory; this selection does not reserve or lock a seat.";
  $("#bookingNotice").textContent=demoMode?"Demo only: submitting shows a preview status and sends no passenger details to the server. No booking or payment is created.":"Seat preferences are not reservations. Submitting for a live service creates a pending, unpaid request only; it does not lock seats, take payment, or confirm a ticket.";
  bookingSeatGrid.replaceChildren();
- bookingSeatNames.forEach(seatName=>{
-  const seat=node("button","booking-seat",seatName);seat.type="button";seat.setAttribute("aria-pressed","false");
-  seat.addEventListener("click",()=>{
-   if(selectedBookingSeats.has(seatName)){selectedBookingSeats.delete(seatName);seat.classList.remove("selected");seat.setAttribute("aria-pressed","false")}
-   else if(selectedBookingSeats.size<6){selectedBookingSeats.add(seatName);seat.classList.add("selected");seat.setAttribute("aria-pressed","true")}
-   else {bookingStatus.className="booking-status pending visible";bookingStatus.textContent="You can select up to 6 seat preferences per request.";return}
-   updateBookingSummary();
+ bookingSeatRows.forEach(rowSeats=>{
+  const row=node("div","booking-seat-row");
+  rowSeats.forEach((seatName,index)=>{
+   const seat=node("button","booking-seat",seatName);seat.type="button";seat.setAttribute("aria-pressed","false");
+   seat.setAttribute("aria-label","Seat preference "+seatName);
+   seat.addEventListener("click",()=>{
+    if(selectedBookingSeats.has(seatName)){selectedBookingSeats.delete(seatName);seat.classList.remove("selected");seat.setAttribute("aria-pressed","false")}
+    else if(selectedBookingSeats.size<6){selectedBookingSeats.add(seatName);seat.classList.add("selected");seat.setAttribute("aria-pressed","true")}
+    else {bookingStatus.className="booking-status pending visible";bookingStatus.textContent="You can select up to 6 seat preferences per request.";return}
+    updateBookingSummary();
+   });
+   row.append(seat);
+   if(index===1){const aisle=node("div","booking-aisle","AISLE");aisle.setAttribute("aria-hidden","true");row.append(aisle)}
   });
-  bookingSeatGrid.append(seat);
+  bookingSeatGrid.append(row);
  });
  updateBookingSummary();
  bookingOverlay.classList.add("open");bookingOverlay.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
