@@ -10,10 +10,11 @@ AS $$
 DECLARE
   v_booking_id uuid;
   v_status text;
+  v_payment_status text;
   v_released integer := 0;
 BEGIN
-  SELECT b.id, b.status
-    INTO v_booking_id, v_status
+  SELECT b.id, b.status, b.payment_status
+    INTO v_booking_id, v_status, v_payment_status
   FROM bookings b
   WHERE b.id = p_booking_id
     AND lower(b.email) = lower(p_email)
@@ -23,8 +24,8 @@ BEGIN
     RAISE EXCEPTION 'Booking not found' USING ERRCODE = 'P0002';
   END IF;
 
-  IF v_status <> 'pending' THEN
-    RAISE EXCEPTION 'Only pending booking requests can be cancelled' USING ERRCODE = '22023';
+  IF v_status <> 'pending' OR v_payment_status <> 'unpaid' THEN
+    RAISE EXCEPTION 'Only unpaid pending booking requests can be cancelled' USING ERRCODE = '22023';
   END IF;
 
   DELETE FROM booking_seat_holds h
