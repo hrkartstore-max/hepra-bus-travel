@@ -94,6 +94,20 @@ footer{background:#0b2a26;color:#c5d8d2}
  .promise{border-radius:22px}
 }
 
+
+/* HEPRA BUS mobile-app navigation upgrade */
+.mobile-bottom-nav{display:none}
+@media(max-width:650px){
+  body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  .mobile-bottom-nav{position:fixed;z-index:60;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(255,254,250,.96);border-top:1px solid #e3ddcf;box-shadow:0 -8px 30px rgba(15,59,54,.10);backdrop-filter:blur(18px)}
+  .mobile-bottom-nav a{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:48px;border-radius:12px;color:#69756f;font-size:9px;font-weight:800;letter-spacing:.15px}
+  .mobile-bottom-nav a .nav-icon{font-size:18px;line-height:1;color:#54766b}
+  .mobile-bottom-nav a[aria-current="page"]{background:#e9f1ed;color:#0f3b36}
+  .mobile-bottom-nav a[aria-current="page"] .nav-icon{color:#0f3b36}
+  .mobile-bottom-nav a:focus-visible{outline:2px solid #ffb238;outline-offset:-2px}
+}
+@media(min-width:651px){.mobile-bottom-nav{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -103,7 +117,7 @@ footer{background:#0b2a26;color:#c5d8d2}
 <nav class="nav-links" aria-label="Main navigation"><a href="#routes">Discover routes</a><a href="#experience">The experience</a><a href="#faq">Help & FAQs</a></nav>
 <a class="nav-cta" href="#search">Plan your journey <span aria-hidden="true">↗</span></a>
 </div></header>
-<section class="hero">
+<section class="hero" id="home">
 <div class="hero-art" aria-hidden="true"></div><div class="road" aria-hidden="true"></div>
 <div class="hero-bus" aria-hidden="true"><div class="body"></div><div class="glass"><i></i><i></i><i></i><i></i><i></i></div><div class="belt"></div><div class="label">HEPRA  ·  LUXURY TRAVEL</div><div class="wheel w1"></div><div class="wheel w2"></div></div>
 <div class="wrap"><div class="hero-content"><div class="kicker">The journey is part of the destination</div><h1>Arrive well.<br><em>Travel beautifully.</em></h1><p>Discover a more thoughtful way to move. Find your route, explore available services and make every mile feel considered.</p><div class="hero-bottom"><span class="seal">✦</span><span><strong>Designed around your journey</strong>Quiet confidence. Clear choices. Better travel.</span></div></div></div>
@@ -144,6 +158,31 @@ footer{background:#0b2a26;color:#c5d8d2}
 <div class="notice"><strong>Booking transparency:</strong> HEPRA BUS is currently an early-access booking experience. Live operator inventory, transactional seat holds, secure payment processing and ticket issuance are not yet enabled. No payment is taken through this page.</div>
 </section>
 </main>
+
+<nav class="mobile-bottom-nav" aria-label="Quick navigation">
+  <a href="#home" data-mobile-nav="home" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span>Home</span></a>
+  <a href="#search" data-mobile-nav="search"><span class="nav-icon" aria-hidden="true">⌕</span><span>Search</span></a>
+  <a href="#routes" data-mobile-nav="routes"><span class="nav-icon" aria-hidden="true">↗</span><span>Routes</span></a>
+  <a href="#faq" data-mobile-nav="help"><span class="nav-icon" aria-hidden="true">?</span><span>Help</span></a>
+</nav>
+<script>
+(function(){
+  const items = Array.from(document.querySelectorAll("[data-mobile-nav]"));
+  function markActive(key){items.forEach(item=>{if(item.dataset.mobileNav===key)item.setAttribute("aria-current","page");else item.removeAttribute("aria-current")})}
+  items.forEach(item=>item.addEventListener("click",function(){
+    markActive(item.dataset.mobileNav);
+    if(item.dataset.mobileNav==="search"){
+      window.setTimeout(function(){const input=document.querySelector("#from");if(input)input.focus({preventScroll:true})},250);
+    }
+  }));
+  const targets=[["home","#home"],["search","#search"],["routes","#routes"],["help","#faq"]];
+  if("IntersectionObserver" in window){
+    const observer=new IntersectionObserver(entries=>{const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(!visible)return;const match=targets.find(item=>item[1]===("#"+visible.target.id));if(match)markActive(match[0])},{rootMargin:"-20% 0px -65% 0px",threshold:[0,.2,.5]});
+    targets.forEach(item=>{const target=document.querySelector(item[1]);if(target)observer.observe(target)});
+  }
+})();
+</script>
+
 <footer><div class="wrap"><div class="footer-main"><div class="footer-brand"><span class="monogram">H</span><span><strong>HEPRA BUS</strong><small>JOURNEYS, REIMAGINED</small></span></div><div class="footer-note">A more considered way to travel. Search your route and explore configured services with a clear, calm booking experience.</div></div><div class="footer-bottom"><span>© <span id="year"></span> HEPRA BUS. Travel thoughtfully.</span><span>Crafted for the journey ahead.</span></div></div></footer>
 <script>
 const $=s=>document.querySelector(s);
