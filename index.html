@@ -443,11 +443,11 @@ form.addEventListener("submit",async event=>{
 
 /* V2 interactive booking request flow */
 const bookingOverlay=$("#bookingOverlay"),bookingForm=$("#bookingForm"),bookingStatus=$("#bookingStatus"),bookingSeatGrid=$("#bookingSeatGrid"),bookingSubmit=$("#bookingSubmit");
-let activeBookingBus=null,selectedBookingSeats=new Set(),lastBookingTrigger=null;
+let activeBookingBus=null,selectedBookingSeats=new Set(),lastBookingTrigger=null,seatAvailabilityReady=false;
 const bookingSeatRows=[["A1","A2","A3","A4"],["B1","B2","B3","B4"],["C1","C2","C3","C4"],["D1","D2","D3","D4"]];
 function moneyINR(value){const amount=Number(value);return Number.isFinite(amount)?"₹"+amount.toLocaleString("en-IN",{maximumFractionDigits:2}):"—"}
 function openBooking(bus){
- activeBookingBus=bus;selectedBookingSeats=new Set();lastBookingTrigger=document.activeElement;
+ activeBookingBus=bus;selectedBookingSeats=new Set();lastBookingTrigger=document.activeElement;seatAvailabilityReady=Boolean(demoMode);
  bookingStatus.className="booking-status";bookingStatus.replaceChildren();bookingStatus.textContent="";
  bookingForm.hidden=false;bookingForm.reset();bookingSubmit.disabled=true;
  $("#bookingTitle").textContent="Choose your seats";
@@ -459,13 +459,14 @@ function openBooking(bus){
  $("#seatCountLabel").textContent="0 selected · max 6";
  $("#summarySeatCount").textContent="0";
  $("#summaryTotal").textContent=moneyINR(0);
- $("#seatInventoryNote").textContent=demoMode?"DEMO ONLY: these sample seats are fictional and do not represent a real coach.":"Seat choices are held for up to 10 minutes only after the backend reservation migration is installed. The hold is temporary and does not confirm a ticket.";
+ $("#seatInventoryNote").textContent=demoMode?"DEMO ONLY: these sample seats are fictional and do not represent a real coach.":"Loading current seat holds… seats remain disabled until availability is checked.";
  $("#bookingNotice").textContent=demoMode?"Demo only: submitting shows a preview status and sends no passenger details to the server. No booking or payment is created.":"Submitting for a live service attempts a temporary 10-minute seat hold. The request remains pending and unpaid; no ticket is confirmed until a verified payment/confirmation workflow is added.";
  bookingSeatGrid.replaceChildren();
+ const seatButtons=new Map();
  bookingSeatRows.forEach(rowSeats=>{
   const row=node("div","booking-seat-row");
   rowSeats.forEach((seatName,index)=>{
-   const seat=node("button","booking-seat",seatName);seat.type="button";seat.setAttribute("aria-pressed","false");
+   const seat=node("button","booking-seat",seatName);seat.type="button";seat.disabled=!demoMode;seatButtons.set(seatName,seat);seat.setAttribute("aria-pressed","false");
    seat.setAttribute("aria-label","Seat preference "+seatName);
    seat.addEventListener("click",()=>{
     if(selectedBookingSeats.has(seatName)){selectedBookingSeats.delete(seatName);seat.classList.remove("selected");seat.setAttribute("aria-pressed","false")}
@@ -481,13 +482,35 @@ function openBooking(bus){
  updateBookingSummary();
  bookingOverlay.classList.add("open");bookingOverlay.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
  $("#bookingClose").focus();
+ if(!demoMode){
+  fetch("/api/seat-availability?serviceId="+encodeURIComponent(String(bus.id||"")),{headers:{Accept:"application/json"}})
+   .then(async response=>{let data={};try{data=await response.json()}catch(error){}if(!response.ok)throw new Error(data.error||"Seat availability could not be checked.");return data;})
+   .then(data=>{
+    if(activeBookingBus!==bus||!bookingOverlay.classList.contains("open"))return;
+    const occupied=new Set(Array.isArray(data.occupiedSeats)?data.occupiedSeats.map(value=>String(value).toUpperCase()):[]);
+    seatButtons.forEach((seat,name)=>{
+     if(occupied.has(name)){seat.disabled=true;seat.classList.add("unavailable");seat.setAttribute("aria-label","Seat "+name+" unavailable");seat.title="Already held or booked";}
+     else seat.disabled=false;
+    });
+    seatAvailabilityReady=true;
+    $("#seatInventoryNote").textContent="Availability checked just now. Greyed seats are held or booked; the server checks again when you submit. The layout is still illustrative, not an operator seat map.";
+    updateBookingSummary();
+   })
+   .catch(error=>{
+    if(activeBookingBus!==bus||!bookingOverlay.classList.contains("open"))return;
+    seatAvailabilityReady=false;seatButtons.forEach(seat=>{seat.disabled=true;});
+    $("#seatInventoryNote").textContent="Live seat availability could not be verified. Booking is disabled for safety. "+(error.message||"Please try again later.");
+    bookingStatus.className="booking-status error visible";bookingStatus.textContent="Cannot verify seats right now. Close and retry after the service/database is available.";
+    updateBookingSummary();
+   });
+ }
 }
 function updateBookingSummary(){
  const count=selectedBookingSeats.size,total=(Number(activeBookingBus&&activeBookingBus.fare)||0)*count;
  $("#seatCountLabel").textContent=count+" selected · max 6";
  $("#summarySeatCount").textContent=String(count);
  $("#summaryTotal").textContent=moneyINR(total);
- bookingSubmit.disabled=count===0;
+ bookingSubmit.disabled=count===0||(!demoMode&&!seatAvailabilityReady);
  bookingSubmit.textContent=demoMode?"Preview demo request":"Submit pending booking request";
 }
 function closeBooking(){
