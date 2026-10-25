@@ -3,8 +3,8 @@ const vm = require("node:vm");
 
 for (const file of ["index.html", "admin.html"]) {
   const html = fs.readFileSync(file, "utf8");
-  const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)]
-    .filter(match => !/\\bsrc\\s*=/.test(match[1]))
+  const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(match => !/\bsrc\s*=/.test(match[1]))
     .map(match => match[2])
     .filter(source => source.trim());
 
