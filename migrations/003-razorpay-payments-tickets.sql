@@ -18,6 +18,22 @@ CREATE UNIQUE INDEX IF NOT EXISTS bookings_ticket_reference_unique
   ON bookings (ticket_reference)
   WHERE ticket_reference IS NOT NULL;
 
+CREATE TABLE IF NOT EXISTS payment_webhook_events (
+  event_id text PRIMARY KEY,
+  event_type text NOT NULL,
+  payment_id text,
+  order_id text,
+  amount_paise bigint,
+  currency text,
+  processing_status text NOT NULL DEFAULT 'received'
+    CHECK (processing_status IN ('received', 'processed', 'review_required', 'ignored', 'failed')),
+  error_code text,
+  received_at timestamptz NOT NULL DEFAULT now(),
+  processed_at timestamptz
+);
+CREATE INDEX IF NOT EXISTS payment_webhook_events_order_idx
+  ON payment_webhook_events (order_id);
+
 ALTER TABLE booking_seat_holds
   ADD COLUMN IF NOT EXISTS hold_status text NOT NULL DEFAULT 'held'
   CHECK (hold_status IN ('held', 'confirmed'));
