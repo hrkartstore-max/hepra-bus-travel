@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102a43"><title>HEPRA BUS | Book bus tickets</title>
+<style>
+:root{--navy:#102a43;--blue:#1769aa;--orange:#ffb020;--ink:#172b4d;--muted:#627d98;--bg:#f4f7fb}*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}header{background:var(--navy);color:white;padding:18px max(20px,calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{font-weight:850;font-size:23px;letter-spacing:.5px}.brand span{color:var(--orange)}header a{color:white;text-decoration:none;font-size:14px}.hero{background:linear-gradient(120deg,#102a43,#1769aa);color:white;padding:62px 20px 105px;text-align:center}.hero h1{font-size:clamp(30px,5vw,52px);margin:0 0 12px;letter-spacing:-1px}.hero p{color:#d9e7f5;margin:0}.wrap{max-width:1120px;margin:-55px auto 0;padding:0 18px}.search{background:white;border-radius:18px;padding:22px;box-shadow:0 14px 38px #102a431a;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px}.field label{display:block;font-size:12px;font-weight:750;color:var(--muted);margin:0 0 8px}.field input{width:100%;padding:14px;border:1px solid #d9e2ec;border-radius:10px;font:inherit;color:var(--ink);background:white}.btn{border:0;border-radius:10px;padding:14px 22px;background:var(--orange);color:#182b3d;font-weight:800;font-size:15px;cursor:pointer;align-self:end}.btn:disabled{opacity:.6;cursor:wait}.section{max-width:1120px;margin:42px auto;padding:0 18px}.section h2{font-size:25px;margin:0 0 8px}.sub{color:var(--muted);margin:0 0 20px}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:white;border:1px solid #e5ebf2;border-radius:14px;padding:22px}.card .emoji{font-size:26px}.card h3{margin:12px 0 6px}.card p{margin:0;color:var(--muted);line-height:1.55}.results{margin-top:20px}.result{padding:18px;border:1px solid #e5ebf2;border-radius:12px;margin-top:10px;background:white}.notice{margin:20px auto 0;max-width:1120px;padding:12px 18px;color:#805500;background:#fff4d6;border:1px solid #ffe09a;border-radius:10px;font-size:13px}.status{margin-top:14px;color:var(--muted);font-size:14px}footer{text-align:center;padding:35px 18px;color:var(--muted);font-size:13px}@media(max-width:760px){.search{grid-template-columns:1fr}.features{grid-template-columns:1fr}.hero{padding:48px 18px 88px}.wrap{margin-top:-48px}.btn{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="brand">HEPRA <span>BUS</span></div><a href="#search">Find your journey →</a></header>
+<section class="hero"><h1>Your journey starts here.</h1><p>Compare bus services and plan your next trip with HEPRA BUS.</p></section>
+<main class="wrap" id="search">
+<form class="search" id="searchForm">
+<div class="field"><label for="from">FROM</label><input id="from" name="from" placeholder="e.g. Chennai" required value="Chennai"></div>
+<div class="field"><label for="to">TO</label><input id="to" name="to" placeholder="e.g. Madurai" required value="Madurai"></div>
+<div class="field"><label for="date">JOURNEY DATE</label><input id="date" name="date" type="date" required></div>
+<button class="btn" id="searchBtn" type="submit">Search buses</button>
+</form><div id="status" class="status" role="status" aria-live="polite"></div><div id="results" class="results"></div>
+</main>
+<div class="notice">Demo launch: real operator inventory and online payments are not enabled. A search only shows services configured in the connected database.</div>
+<section class="section"><h2>Travel with confidence</h2><p class="sub">A simpler way to plan your next bus journey.</p><div class="features">
+<article class="card"><div class="emoji">🚌</div><h3>Compare services</h3><p>Search a route and review available services, departure times and fares when inventory is connected.</p></article>
+<article class="card"><div class="emoji">🪑</div><h3>Plan your seat</h3><p>Seat selection and live availability will be enabled after the operator inventory integration.</p></article>
+<article class="card"><div class="emoji">🔒</div><h3>Secure booking</h3><p>Payment and ticket confirmation remain disabled until a verified payment provider is integrated.</p></article>
+</div></section>
+<footer>© <span id="year"></span> HEPRA BUS · Travel smarter.</footer>
+<script>
+const dateInput=document.querySelector('#date');const today=new Date();dateInput.min=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');dateInput.value=dateInput.min;document.querySelector('#year').textContent=new Date().getFullYear();
+const form=document.querySelector('#searchForm'),statusEl=document.querySelector('#status'),results=document.querySelector('#results'),btn=document.querySelector('#searchBtn');
+form.addEventListener('submit',async e=>{e.preventDefault();results.replaceChildren();statusEl.textContent='Searching available services…';btn.disabled=true;try{const q=new URLSearchParams({from:form.from.value.trim(),to:form.to.value.trim(),date:form.date.value});const res=await fetch('/api/buses?'+q);const data=await res.json();if(!res.ok)throw new Error(data.error||'Search failed');if(!data.buses?.length){statusEl.textContent='No services found for this route and date yet. Try another date or check back after operators are connected.';return}statusEl.textContent=data.buses.length+' service(s) found';data.buses.forEach(bus=>{const card=document.createElement('article');card.className='result';const title=document.createElement('strong');title.textContent=bus.operator_name+' · '+bus.bus_type;const details=document.createElement('p');details.textContent=bus.departure_time+' → '+bus.arrival_time+' · ₹'+Number(bus.fare).toLocaleString('en-IN')+' per seat';card.append(title,details);results.append(card)})}catch(err){statusEl.textContent=err.message.includes('not configured')?'Database is not connected yet. Configure DATABASE_URL in Vercel to enable search.':err.message}finally{btn.disabled=false}});
+</script>
+</body></html>
