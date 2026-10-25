@@ -1,0 +1,19 @@
+{
+  "name": "hepra-bus-travel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HEPRA BUS travel booking starter",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "check": "node --check api/health.js && node --check api/buses.js && node --check api/bookings.js && node --check lib/db.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  },
+  "devDependencies": {
+    "vercel": "^48.1.0"
+  }
+}
