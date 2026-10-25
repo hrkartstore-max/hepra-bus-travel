@@ -108,6 +108,64 @@ footer{background:#0b2a26;color:#c5d8d2}
 }
 @media(min-width:651px){.mobile-bottom-nav{display:none!important}}
 
+
+/* V2 booking request flow */
+.booking-cta{grid-column:1/-1;justify-self:stretch;width:100%;border:0;border-radius:12px;background:#0f3b36;color:#fff;padding:13px 16px;font-size:11px;font-weight:800;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .18s,background .18s}
+.booking-cta:hover{background:#164b43;transform:translateY(-1px)}
+.booking-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(8,20,18,.68);backdrop-filter:blur(8px)}
+.booking-overlay.open{display:flex}
+.booking-dialog{width:min(760px,100%);max-height:min(92dvh,900px);overflow:auto;background:#fffefa;border:1px solid #e4dccb;border-radius:24px;box-shadow:0 28px 100px #0005;color:#1b2738}
+.booking-top{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:22px 24px 17px;background:#fffefaee;backdrop-filter:blur(12px);border-bottom:1px solid #eee8dc}
+.booking-eyebrow{font-size:9px;letter-spacing:1.8px;font-weight:800;text-transform:uppercase;color:#a18755}
+.booking-top h2{font:800 22px Manrope,sans-serif;letter-spacing:-.8px;margin:7px 0 4px;color:#0f3b36}
+.booking-subtitle{font-size:11px;color:#777f7a;line-height:1.6}
+.booking-close{flex:0 0 auto;width:38px;height:38px;border:1px solid #e6e0d4;border-radius:50%;background:#f8f5ed;color:#28443c;font-size:22px}
+.booking-body{padding:20px 24px 24px}
+.booking-service{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:15px 16px;background:#e9f1ed;border:1px solid #d8e4dc;border-radius:15px;margin-bottom:19px}
+.booking-service strong{display:block;font:800 14px Manrope,sans-serif;color:#0f3b36}
+.booking-service small{display:block;margin-top:5px;color:#65766e;font-size:10px;line-height:1.6}
+.booking-fare{font:800 21px Manrope,sans-serif;color:#0f3b36;text-align:right}
+.booking-fare small{font:600 9px "DM Sans",sans-serif;color:#6e7a73}
+.booking-step-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 12px}
+.booking-step-title h3{font:800 14px Manrope,sans-serif;color:#183b32;margin:0}
+.booking-step-title span{font-size:9px;color:#7c887f}
+.booking-seat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.booking-seat{min-height:45px;border:1px solid #dcd8cd;background:#fffefa;color:#375449;border-radius:10px;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:5px}
+.booking-seat:before{content:"";width:8px;height:8px;border-radius:3px;border:1px solid #91a99b}
+.booking-seat.selected{background:#0f3b36;border-color:#0f3b36;color:#fff}
+.booking-seat.selected:before{background:#ffb238;border-color:#ffb238}
+.booking-seat:disabled{opacity:.45;cursor:not-allowed}
+.booking-seat-note{margin:10px 0 0;font-size:10px;line-height:1.7;color:#7a817c}
+.booking-passenger{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.booking-field label{display:block;font-size:10px;font-weight:800;color:#647168;margin:0 0 7px}
+.booking-field input{width:100%;height:46px;border:1px solid #deded3;border-radius:10px;background:white;padding:0 12px;color:#1b2738;font-size:12px}
+.booking-field input:focus{outline:2px solid #ffb23888;border-color:#c5a366}
+.booking-field.full{grid-column:1/-1}
+.booking-summary{margin-top:19px;padding:16px;border:1px solid #e6dfd0;background:#f8f5ed;border-radius:15px}
+.booking-summary-row{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#67736b;margin:7px 0}
+.booking-summary-row strong{color:#1b2738}
+.booking-summary-total{border-top:1px solid #e2d9c8;padding-top:12px;margin-top:12px;font-weight:800;font-size:13px;color:#0f3b36}
+.booking-notice{margin-top:13px;border:1px solid #e6d7b6;background:#f5eedf;color:#725a2d;padding:12px 13px;border-radius:11px;font-size:10px;line-height:1.7}
+.booking-submit{width:100%;margin-top:15px;min-height:49px;border:0;border-radius:12px;background:#ffb238;color:#20322a;font-size:12px;font-weight:900}
+.booking-submit:disabled{opacity:.55;cursor:not-allowed}
+.booking-status{display:none;margin-top:16px;border:1px solid #d7e4d8;background:#edf5ee;color:#234c34;padding:17px;border-radius:14px;font-size:12px;line-height:1.8}
+.booking-status.visible{display:block}
+.booking-status strong{display:block;font:800 16px Manrope,sans-serif;margin-bottom:5px}
+.booking-status.pending{background:#f5eedf;border-color:#e6d7b6;color:#725a2d}
+.booking-status.error{background:#fbefed;border-color:#ebd0ca;color:#8d3b32}
+@media(max-width:650px){
+ .booking-overlay{padding:0;align-items:flex-end}
+ .booking-dialog{width:100%;max-height:94dvh;border-radius:22px 22px 0 0;border-bottom:0}
+ .booking-top{padding:18px 17px 14px}
+ .booking-top h2{font-size:20px}
+ .booking-body{padding:16px 17px calc(20px + env(safe-area-inset-bottom))}
+ .booking-service{padding:13px}
+ .booking-passenger{grid-template-columns:1fr}
+ .booking-field.full{grid-column:auto}
+ .booking-seat-grid{gap:7px}
+ .booking-seat{min-height:43px}
+}
+
 </style>
 </head>
 <body>
@@ -158,6 +216,39 @@ footer{background:#0b2a26;color:#c5d8d2}
 <div class="notice"><strong>Booking transparency:</strong> HEPRA BUS is currently an early-access booking experience. Live operator inventory, transactional seat holds, secure payment processing and ticket issuance are not yet enabled. No payment is taken through this page.</div>
 </section>
 </main>
+
+
+<div class="booking-overlay" id="bookingOverlay" aria-hidden="true">
+  <section class="booking-dialog" role="dialog" aria-modal="true" aria-labelledby="bookingTitle" aria-describedby="bookingSubtitle">
+    <div class="booking-top">
+      <div><div class="booking-eyebrow">HEPRA BUS · Booking flow</div><h2 id="bookingTitle">Choose your seats</h2><div class="booking-subtitle" id="bookingSubtitle">Select seat preferences, then add passenger details.</div></div>
+      <button class="booking-close" id="bookingClose" type="button" aria-label="Close booking form">×</button>
+    </div>
+    <div class="booking-body">
+      <div class="booking-service"><div><strong id="bookingOperator">Bus service</strong><small id="bookingServiceMeta">Route · Departure · Arrival</small></div><div class="booking-fare"><span id="bookingFare">₹0</span><small> / seat · listed fare</small></div></div>
+      <form id="bookingForm">
+        <div class="booking-step-title"><h3>01 · Seat preferences</h3><span id="seatCountLabel">0 selected · max 6</span></div>
+        <div class="booking-seat-grid" id="bookingSeatGrid" aria-label="Illustrative seat preference selector"></div>
+        <p class="booking-seat-note" id="seatInventoryNote">Seat map is a preference selector only. Live seat-level inventory and seat locks are not connected.</p>
+        <div class="booking-step-title"><h3>02 · Passenger details</h3><span>Required fields</span></div>
+        <div class="booking-passenger">
+          <div class="booking-field full"><label for="passengerName">Full name</label><input id="passengerName" name="passengerName" autocomplete="name" minlength="2" maxlength="120" required placeholder="Passenger full name"></div>
+          <div class="booking-field"><label for="passengerEmail">Email address</label><input id="passengerEmail" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com"></div>
+          <div class="booking-field"><label for="passengerPhone">Phone number</label><input id="passengerPhone" name="phone" type="tel" autocomplete="tel" minlength="8" maxlength="20" pattern="[0-9+()\-\s]{8,20}" required placeholder="+91 98765 43210"></div>
+        </div>
+        <div class="booking-summary">
+          <div class="booking-step-title" style="margin:0 0 10px"><h3>03 · Fare summary</h3><span>Estimate only</span></div>
+          <div class="booking-summary-row"><span>Listed fare per seat</span><strong id="summaryUnitFare">₹0</strong></div>
+          <div class="booking-summary-row"><span>Selected seats</span><strong id="summarySeatCount">0</strong></div>
+          <div class="booking-summary-row booking-summary-total"><span>Estimated fare subtotal</span><strong id="summaryTotal">₹0</strong></div>
+        </div>
+        <div class="booking-notice" id="bookingNotice">Seat preferences are not reservations. Submitting for a live service creates a pending, unpaid request only; it does not lock seats, take payment, or confirm a ticket.</div>
+        <button class="booking-submit" id="bookingSubmit" type="submit" disabled>Continue with seat preferences</button>
+      </form>
+      <div class="booking-status" id="bookingStatus" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+</div>
 
 <nav class="mobile-bottom-nav" aria-label="Quick navigation">
   <a href="#home" data-mobile-nav="home" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span>Home</span></a>
@@ -216,7 +307,12 @@ function renderBuses(){
   if(demoMode)card.append(node("span","demo-tag","DEMO · NOT LIVE"));
   const price=node("div","bus-price"),fare=Number(bus.fare);price.append(node("small","","Fare per seat"),node("strong","",Number.isFinite(fare)?"₹"+fare.toLocaleString("en-IN"):"Fare unavailable"));
   if(Number.isFinite(Number(bus.seats_available)))price.append(node("span","availability",Number(bus.seats_available)+" seats listed"));
-  card.append(left,price);if(demoMode){const toggle=node("button","seat-preview-toggle","Preview seat layout ↗");toggle.type="button";toggle.setAttribute("aria-expanded","false");const panel=node("div","seat-preview");panel.hidden=true;panel.append(node("p","","Sample layout only · tap available seats to preview a selection. This does not reserve a real seat."));const grid=node("div","seat-grid");const selected=new Set();const unavailable=new Set(["A2","B3","C1"]);const summary=node("div","seat-summary","No demo seats selected");for(let i=0;i<12;i++){const row=String.fromCharCode(65+Math.floor(i/4)),seatId=row+(i%4+1),seat=node("button","seat"+(unavailable.has(seatId)?" taken":""),seatId);seat.type="button";seat.disabled=unavailable.has(seatId);seat.setAttribute("aria-pressed","false");seat.addEventListener("click",()=>{if(selected.has(seatId)){selected.delete(seatId);seat.classList.remove("selected");seat.setAttribute("aria-pressed","false")}else if(selected.size<6){selected.add(seatId);seat.classList.add("selected");seat.setAttribute("aria-pressed","true")}else{summary.textContent="Demo allows up to 6 seats per preview.";return}summary.textContent=selected.size?selected.size+" demo seat"+(selected.size===1?"":"s")+" selected · "+[...selected].sort().join(", "):"No demo seats selected"});grid.append(seat)}panel.append(grid,summary,node("p","seat-demo-warning","DEMO ONLY — seat status is fictional. No booking or payment is created."));toggle.addEventListener("click",()=>{panel.hidden=!panel.hidden;toggle.setAttribute("aria-expanded",String(!panel.hidden));toggle.textContent=panel.hidden?"Preview seat layout ↗":"Hide seat layout ↑"});card.append(toggle,panel)}results.append(card);
+  card.append(left,price);
+  const chooseBtn=node("button","booking-cta","Choose seats & continue  ↗");
+  chooseBtn.type="button";
+  chooseBtn.addEventListener("click",()=>openBooking(bus));
+  card.append(chooseBtn);
+  results.append(card);
  });
 }
 $("#demoBtn").addEventListener("click",()=>{
@@ -264,6 +360,91 @@ form.addEventListener("submit",async event=>{
  finally{btn.disabled=false;btn.innerHTML='Discover services <span aria-hidden="true">↗</span>'}
  section.scrollIntoView({behavior:"smooth",block:"start"});
 });
+
+/* V2 interactive booking request flow */
+const bookingOverlay=$("#bookingOverlay"),bookingForm=$("#bookingForm"),bookingStatus=$("#bookingStatus"),bookingSeatGrid=$("#bookingSeatGrid"),bookingSubmit=$("#bookingSubmit");
+let activeBookingBus=null,selectedBookingSeats=new Set(),lastBookingTrigger=null;
+const bookingSeatNames=["A1","A2","B1","B2","A3","A4","B3","B4","C1","C2","D1","D2","C3","C4","D3","D4"];
+function moneyINR(value){const amount=Number(value);return Number.isFinite(amount)?"₹"+amount.toLocaleString("en-IN",{maximumFractionDigits:2}):"—"}
+function openBooking(bus){
+ activeBookingBus=bus;selectedBookingSeats=new Set();lastBookingTrigger=document.activeElement;
+ bookingStatus.className="booking-status";bookingStatus.replaceChildren();bookingStatus.textContent="";
+ bookingForm.hidden=false;bookingForm.reset();bookingSubmit.disabled=true;
+ $("#bookingTitle").textContent="Choose your seats";
+ $("#bookingSubtitle").textContent=demoMode?"Demo preview · no booking will be submitted.":"Select seat preferences, then add passenger details.";
+ $("#bookingOperator").textContent=bus.operator_name||"Bus service";
+ $("#bookingServiceMeta").textContent=(currentRoute.from||bus.origin||"Origin")+" → "+(currentRoute.to||bus.destination||"Destination")+" · "+formatTime(bus.departure_time)+"–"+formatTime(bus.arrival_time)+" · "+(bus.bus_type||"Bus service");
+ $("#bookingFare").textContent=moneyINR(bus.fare);
+ $("#summaryUnitFare").textContent=moneyINR(bus.fare);
+ $("#seatCountLabel").textContent="0 selected · max 6";
+ $("#summarySeatCount").textContent="0";
+ $("#summaryTotal").textContent=moneyINR(0);
+ $("#seatInventoryNote").textContent=demoMode?"DEMO ONLY: these sample seats are fictional and do not represent a real coach.":"Illustrative seat preferences only. The connected backend has seat counts, not seat-level inventory; this selection does not reserve or lock a seat.";
+ $("#bookingNotice").textContent=demoMode?"Demo only: submitting shows a preview status and sends no passenger details to the server. No booking or payment is created.":"Seat preferences are not reservations. Submitting for a live service creates a pending, unpaid request only; it does not lock seats, take payment, or confirm a ticket.";
+ bookingSeatGrid.replaceChildren();
+ bookingSeatNames.forEach(seatName=>{
+  const seat=node("button","booking-seat",seatName);seat.type="button";seat.setAttribute("aria-pressed","false");
+  seat.addEventListener("click",()=>{
+   if(selectedBookingSeats.has(seatName)){selectedBookingSeats.delete(seatName);seat.classList.remove("selected");seat.setAttribute("aria-pressed","false")}
+   else if(selectedBookingSeats.size<6){selectedBookingSeats.add(seatName);seat.classList.add("selected");seat.setAttribute("aria-pressed","true")}
+   else {bookingStatus.className="booking-status pending visible";bookingStatus.textContent="You can select up to 6 seat preferences per request.";return}
+   updateBookingSummary();
+  });
+  bookingSeatGrid.append(seat);
+ });
+ updateBookingSummary();
+ bookingOverlay.classList.add("open");bookingOverlay.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
+ $("#bookingClose").focus();
+}
+function updateBookingSummary(){
+ const count=selectedBookingSeats.size,total=(Number(activeBookingBus&&activeBookingBus.fare)||0)*count;
+ $("#seatCountLabel").textContent=count+" selected · max 6";
+ $("#summarySeatCount").textContent=String(count);
+ $("#summaryTotal").textContent=moneyINR(total);
+ bookingSubmit.disabled=count===0;
+ bookingSubmit.textContent=demoMode?"Preview demo request":"Submit pending booking request";
+}
+function closeBooking(){
+ bookingOverlay.classList.remove("open");bookingOverlay.setAttribute("aria-hidden","true");document.body.style.overflow="";
+ if(lastBookingTrigger&&typeof lastBookingTrigger.focus==="function")lastBookingTrigger.focus();
+}
+$("#bookingClose").addEventListener("click",closeBooking);
+bookingOverlay.addEventListener("click",event=>{if(event.target===bookingOverlay)closeBooking()});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&bookingOverlay.classList.contains("open"))closeBooking()});
+bookingForm.addEventListener("submit",async event=>{
+ event.preventDefault();
+ if(!activeBookingBus||!selectedBookingSeats.size)return;
+ if(!bookingForm.reportValidity())return;
+ const passengerName=$("#passengerName").value.trim(),email=$("#passengerEmail").value.trim(),phone=$("#passengerPhone").value.trim(),seats=[...selectedBookingSeats].sort();
+ if(demoMode){
+  bookingForm.hidden=true;bookingStatus.className="booking-status pending visible";
+  const title=node("strong","","Demo preview only — not submitted");
+  const detail=node("div","", "Sample service: "+(activeBookingBus.operator_name||"Demo bus")+". "+seats.length+" seat preference(s) selected. Passenger details were not sent to the server. No booking ID, seat hold, ticket, or payment was created.");
+  bookingStatus.replaceChildren(title,detail);bookingStatus.scrollIntoView({behavior:"smooth",block:"nearest"});return;
+ }
+ const serviceId=String(activeBookingBus.id||"");
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(serviceId)){
+  bookingStatus.className="booking-status error visible";bookingStatus.textContent="This service has no valid backend service ID, so a booking request cannot be submitted. Try a verified service from the live search.";return;
+ }
+ bookingSubmit.disabled=true;bookingSubmit.textContent="Submitting request…";bookingStatus.className="booking-status";bookingStatus.replaceChildren();
+ try{
+  const response=await fetch("/api/bookings",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({serviceId,passengerName,email,phone,seats})});
+  let data={};try{data=await response.json()}catch(error){}
+  if(!response.ok)throw new Error(data.error||"Unable to submit booking request.");
+  const booking=data.booking||{};
+  bookingForm.hidden=true;bookingStatus.className="booking-status pending visible";
+  const title=node("strong","","Request received · pending");
+  const detail=node("div","","Request ID: "+(booking.id||"not returned")+". Status: "+(booking.status||"pending")+". Payment: "+(booking.payment_status||"unpaid")+". "+(data.message||"No ticket has been confirmed."));
+  bookingStatus.replaceChildren(title,detail);
+ }catch(error){
+  bookingStatus.className="booking-status error visible";
+  bookingStatus.textContent=(error.message||"Unable to submit booking request.")+" No confirmed ticket was created.";
+ }finally{
+  bookingSubmit.disabled=selectedBookingSeats.size===0;
+  bookingSubmit.textContent=demoMode?"Preview demo request":"Submit pending booking request";
+ }
+});
+
 </script>
 </body>
 </html>
