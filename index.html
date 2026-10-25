@@ -224,6 +224,29 @@ footer{background:#0b2a26;color:#c5d8d2}
  .track-detail{break-inside:avoid}
 }
 
+
+.demo-ticket{margin-top:16px;border:1px solid #d8c69d;border-radius:18px;overflow:hidden;background:#fffefa;color:#183b36;box-shadow:0 12px 34px #173c3410}
+.demo-ticket-banner{padding:12px 16px;background:#f4ead2;color:#765d2c;font-size:10px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase}
+.demo-ticket-main{padding:18px}
+.demo-ticket-brand{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px dashed #d9d4c8;padding-bottom:14px}
+.demo-ticket-brand strong{font:800 18px Manrope,sans-serif;letter-spacing:1.4px}
+.demo-ticket-brand small{display:block;color:#78817b;font-size:10px;margin-top:4px}
+.demo-ticket-ref{font-size:10px;color:#6f786f;text-align:right;overflow-wrap:anywhere}
+.demo-ticket-route{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:20px 0}
+.demo-ticket-city strong{display:block;font:800 19px Manrope,sans-serif}
+.demo-ticket-city small{display:block;color:#78817b;font-size:10px;margin-top:4px}
+.demo-ticket-city:last-child{text-align:right}
+.demo-ticket-arrow{font-size:22px;color:#b18a45}
+.demo-ticket-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border-top:1px solid #eee9df;padding-top:16px}
+.demo-ticket-cell span{display:block;font-size:9px;color:#818780;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:5px}
+.demo-ticket-cell strong{font-size:12px;overflow-wrap:anywhere}
+.demo-ticket-warning{margin-top:16px;border-radius:10px;background:#f8f0df;padding:12px;color:#765d2c;font-size:11px;line-height:1.65}
+.demo-ticket-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.demo-ticket-actions button{border:0;border-radius:10px;padding:12px 15px;font:800 11px inherit;cursor:pointer}
+.demo-ticket-print{background:#143c35;color:white}
+.demo-ticket-again{background:#eeeae1;color:#34453f}
+@media print{body *{visibility:hidden!important}.demo-ticket,.demo-ticket *{visibility:visible!important}.demo-ticket{position:absolute;left:0;top:0;width:100%;box-shadow:none}.demo-ticket-actions{display:none!important}.booking-overlay{position:static!important;background:white!important;display:block!important;padding:0!important}.booking-dialog{display:none!important}.demo-ticket{display:block!important}}
+@media(max-width:420px){.demo-ticket-route{gap:7px}.demo-ticket-city strong{font-size:16px}.demo-ticket-main{padding:14px}}
 </style>
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 </head>
@@ -526,10 +549,34 @@ bookingForm.addEventListener("submit",async event=>{
  if(!bookingForm.reportValidity())return;
  const passengerName=$("#passengerName").value.trim(),email=$("#passengerEmail").value.trim(),phone=$("#passengerPhone").value.trim(),seats=[...selectedBookingSeats].sort();
  if(demoMode){
-  bookingForm.hidden=true;bookingStatus.className="booking-status pending visible";
-  const title=node("strong","","Demo preview only — not submitted");
-  const detail=node("div","", "Sample service: "+(activeBookingBus.operator_name||"Demo bus")+". "+seats.length+" seat preference(s) selected. Passenger details were not sent to the server. No booking ID, seat hold, ticket, or payment was created.");
-  bookingStatus.replaceChildren(title,detail);bookingStatus.scrollIntoView({behavior:"smooth",block:"nearest"});return;
+  bookingForm.hidden=true;bookingStatus.className="booking-status pending visible";bookingStatus.replaceChildren();
+  const ticket=node("article","demo-ticket");
+  const banner=node("div","demo-ticket-banner","DEMO TICKET · NOT VALID FOR TRAVEL");
+  const main=node("div","demo-ticket-main");
+  const brand=node("div","demo-ticket-brand"),brandBlock=node("div",""),brandName=node("strong","","HEPRA BUS"),brandSub=node("small","","Sample booking confirmation · Demo mode");
+  brandBlock.append(brandName,brandSub);
+  const ref="DEMO-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.random().toString(36).slice(2,7).toUpperCase();
+  const reference=node("div","demo-ticket-ref","DEMO REFERENCE");const refValue=node("strong","",ref);reference.append(refValue);brand.append(brandBlock,reference);
+  const route=node("div","demo-ticket-route");
+  const origin=node("div","demo-ticket-city"),destination=node("div","demo-ticket-city");
+  origin.append(node("strong","",currentRoute.from||activeBookingBus.origin||"Origin"),node("small","","FROM"));
+  destination.append(node("strong","",currentRoute.to||activeBookingBus.destination||"Destination"),node("small","","TO"));
+  route.append(origin,node("div","demo-ticket-arrow","→"),destination);
+  const grid=node("div","demo-ticket-grid");
+  const journeyDate=$("#date").value||"Demo journey";
+  const values=[
+   ["Passenger",passengerName],["Journey date",journeyDate],["Operator",activeBookingBus.operator_name||"Demo service"],["Bus type",activeBookingBus.bus_type||"Sample bus"],["Departure",formatTime(activeBookingBus.departure_time)],["Arrival",formatTime(activeBookingBus.arrival_time)],["Seat preferences",seats.join(", ")],["Passenger email",email],["Contact number",phone],["Fare per seat",moneyINR(activeBookingBus.fare)],["Seat count",String(seats.length)],["Demo fare total",moneyINR((Number(activeBookingBus.fare)||0)*seats.length)]
+  ];
+  values.forEach(([label,value])=>{const cell=node("div","demo-ticket-cell");cell.append(node("span","",label),node("strong","",String(value)));grid.append(cell)});
+  const warning=node("div","demo-ticket-warning","This is a simulated demo ticket for preview/testing only. No server booking was created, seats were not reserved, and no payment was taken. This reference is not a real ticket and cannot be used for boarding.");
+  const actions=node("div","demo-ticket-actions");
+  const printButton=node("button","demo-ticket-print","Print / Save PDF");printButton.type="button";printButton.addEventListener("click",()=>window.print());
+  const againButton=node("button","demo-ticket-again","Try another demo");againButton.type="button";againButton.addEventListener("click",()=>{bookingStatus.replaceChildren();bookingStatus.className="booking-status";bookingForm.hidden=false;selectedBookingSeats=new Set();updateBookingSummary();bookingSeatGrid.querySelectorAll(".booking-seat").forEach(seat=>{seat.classList.remove("selected");seat.setAttribute("aria-pressed","false")});});
+  actions.append(printButton,againButton);
+  main.append(brand,route,grid,warning,actions);ticket.append(banner,main);
+  const title=node("strong","","Demo booking complete");
+  const detail=node("div","","Your sample ticket is ready below. You can print it or save it as PDF for testing.");
+  bookingStatus.append(title,detail,ticket);bookingStatus.scrollIntoView({behavior:"smooth",block:"nearest"});return;
  }
  const serviceId=String(activeBookingBus.id||"");
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(serviceId)){
