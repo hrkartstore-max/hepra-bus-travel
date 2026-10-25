@@ -86,6 +86,10 @@ module.exports = async function handler(req, res) {
       console.error("Captured payment references an unknown order");
       return res.status(200).json({ received: true, review_required: true });
     }
+    if (error.code === "22023" || error.code === "23505") {
+      console.error("Captured payment requires manual review", { code: error.code });
+      return res.status(200).json({ received: true, review_required: true });
+    }
     if (error.code === "42P01" || error.code === "42883") {
       return res.status(503).json({ error: "Payment database migration is incomplete" });
     }
