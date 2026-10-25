@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
       return res.status(404).json({ error: "No booking was found for that reference and email combination" });
     }
     if (error.code === "22023") {
-      return res.status(409).json({ error: "Only pending booking requests can be cancelled" });
+      return res.status(409).json({ error: "Only unpaid pending booking requests can be cancelled" });
     }
     if (error.code === "42883") {
       return res.status(503).json({ error: "Cancellation setup is incomplete. Apply migrations/002-cancel-booking-release-seats.sql after migration 001." });
