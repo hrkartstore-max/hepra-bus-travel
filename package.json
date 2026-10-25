@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vercel dev",
-    "check": "node --check api/health.js && node --check api/buses.js && node --check api/bookings.js && node --check api/booking-status.js && node --check api/booking-cancel.js && node --check api/payments/create-order.js && node --check api/payments/webhook.js && node --check api/maintenance/expire-holds.js && node --check api/admin/services.js && node --check api/admin/bookings.js && node --check lib/db.js && node --check lib/admin-auth.js && node scripts/check-html.js"
+    "check": "node --check api/health.js && node --check api/buses.js && node --check api/seat-availability.js && node --check api/bookings.js && node --check api/booking-status.js && node --check api/booking-cancel.js && node --check api/payments/create-order.js && node --check api/payments/webhook.js && node --check api/maintenance/expire-holds.js && node --check api/admin/services.js && node --check api/admin/bookings.js && node --check lib/db.js && node --check lib/admin-auth.js && node scripts/check-html.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2"
