@@ -131,7 +131,14 @@ footer{background:#0b2a26;color:#c5d8d2}
 .booking-step-title span{font-size:9px;color:#7c887f}
 .booking-seat-grid{display:block}
 .booking-decks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
-.booking-deck{min-width:0;border:1px solid #dcded8;border-radius:16px;background:#f4f5f1;padding:10px}
+.booking-deck{min-width:0;border:1px solid #dcded8;border-radius:16px;background:#f4f5f1;padding:10px;overflow:hidden}
+.booking-deck:before{content:"FRONT / DRIVER";display:block;margin:0 0 9px;padding:7px 5px;text-align:center;border:1px dashed #cbd2cc;border-radius:8px;color:#7b857e;font-size:8px;font-weight:800;letter-spacing:1.1px;background:#eef1ec}
+.booking-deck-title{min-height:26px}
+.booking-seat-grid .booking-decks{align-items:stretch}
+.booking-seat-grid .booking-seat-row{min-height:72px}
+.booking-seat-grid .booking-seat{height:100%;min-height:72px}
+.booking-seat-grid .booking-seat.unavailable{background:#e4e5e3;color:#9b9e9a;border-color:#d7d8d6}
+.booking-seat-grid .booking-seat.unavailable:before{background:#d1d3d0}
 .booking-deck-title{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:3px 2px 10px;font:800 13px Manrope,sans-serif;color:#243a34}
 .booking-deck-title span{font:500 9px "DM Sans",sans-serif;color:#7b857e}
 .booking-seat-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 12px minmax(0,1fr) minmax(0,1fr);gap:5px;align-items:stretch;margin-bottom:7px}
@@ -492,7 +499,7 @@ function openBooking(bus){
  bookingStatus.className="booking-status";bookingStatus.replaceChildren();bookingStatus.textContent="";
  bookingForm.hidden=false;bookingForm.reset();bookingSubmit.disabled=true;
  $("#bookingTitle").textContent="Choose your seats";
- $("#bookingSubtitle").textContent=demoMode?"Demo preview · no booking will be submitted.":"Select seat preferences, then add passenger details.";
+ $("#bookingSubtitle").textContent=demoMode?"Choose seats like a real bus booking app · demo only.":"Select seat preferences, then add passenger details.";
  $("#bookingOperator").textContent=bus.operator_name||"Bus service";
  $("#bookingServiceMeta").textContent=(currentRoute.from||bus.origin||"Origin")+" → "+(currentRoute.to||bus.destination||"Destination")+" · "+formatTime(bus.departure_time)+"–"+formatTime(bus.arrival_time)+" · "+(bus.bus_type||"Bus service");
  $("#bookingFare").textContent=moneyINR(bus.fare);
@@ -500,12 +507,16 @@ function openBooking(bus){
  $("#seatCountLabel").textContent="0 selected · max 6";
  $("#summarySeatCount").textContent="0";
  $("#summaryTotal").textContent=moneyINR(0);
- $("#seatInventoryNote").textContent=demoMode?"DEMO ONLY: these sample seats are fictional and do not represent a real coach.":"Loading current seat holds… seats remain disabled until availability is checked.";
+ $("#seatInventoryNote").textContent=demoMode?"DEMO LAYOUT · 40 illustrative seats across two decks. Grey seats are sample unavailable seats; this is not a real operator seat map.":"Loading current seat holds… seats remain disabled until availability is checked.";
  $("#bookingNotice").textContent=demoMode?"Demo only: submitting shows a preview status and sends no passenger details to the server. No booking or payment is created.":"Submitting for a live service attempts a temporary 10-minute seat hold. The request remains pending and unpaid; no ticket is confirmed until a verified payment/confirmation workflow is added.";
  bookingSeatGrid.replaceChildren();
  const seatButtons=new Map();
  const decks=node("div","booking-decks");
- const deckGroups=[{title:"Lower deck",rows:bookingSeatRows.slice(0,2)},{title:"Upper deck",rows:bookingSeatRows.slice(2,4)}];
+ const demoDeckRows=count=>Array.from({length:5},(_,rowIndex)=>Array.from({length:4},(_,seatIndex)=>(count===0?"L":"U")+String(rowIndex*4+seatIndex+1).padStart(2,"0")));
+ const demoOccupiedSeats=new Set(["L03","L08","L12","L17","U02","U07","U14","U19"]);
+ const deckGroups=demoMode
+  ?[{title:"Lower deck",rows:demoDeckRows(0)},{title:"Upper deck",rows:demoDeckRows(1)}]
+  :[{title:"Lower deck",rows:bookingSeatRows.slice(0,2)},{title:"Upper deck",rows:bookingSeatRows.slice(2,4)}];
  deckGroups.forEach(deckInfo=>{
   const deck=node("section","booking-deck");
   const deckTitle=node("div","booking-deck-title",deckInfo.title);
@@ -515,8 +526,12 @@ function openBooking(bus){
    const row=node("div","booking-seat-row");
    rowSeats.forEach((seatName,index)=>{
     const seat=node("button","booking-seat");
-    seat.type="button";seat.disabled=!demoMode;seatButtons.set(seatName,seat);seat.setAttribute("aria-pressed","false");
-    seat.setAttribute("aria-label","Seat preference "+seatName+" · "+moneyINR(bus.fare));
+    seat.type="button";
+    const demoUnavailable=demoMode&&demoOccupiedSeats.has(seatName);
+    seat.disabled=!demoMode||demoUnavailable;
+    if(demoUnavailable){seat.classList.add("unavailable");seat.setAttribute("aria-label","Demo seat "+seatName+" shown as unavailable");seat.title="Illustrative demo seat status"}
+    else seat.setAttribute("aria-label","Seat preference "+seatName+" · "+moneyINR(bus.fare));
+    seatButtons.set(seatName,seat);seat.setAttribute("aria-pressed","false");
     const seatLabel=node("span","seat-name",seatName);
     const seatPrice=node("small","seat-price",moneyINR(bus.fare));
     seat.append(seatLabel,seatPrice);
