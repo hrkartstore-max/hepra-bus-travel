@@ -426,8 +426,8 @@ function openBooking(bus){
  $("#seatCountLabel").textContent="0 selected · max 6";
  $("#summarySeatCount").textContent="0";
  $("#summaryTotal").textContent=moneyINR(0);
- $("#seatInventoryNote").textContent=demoMode?"DEMO ONLY: these sample seats are fictional and do not represent a real coach.":"Illustrative seat preferences only. The connected backend has seat counts, not seat-level inventory; this selection does not reserve or lock a seat.";
- $("#bookingNotice").textContent=demoMode?"Demo only: submitting shows a preview status and sends no passenger details to the server. No booking or payment is created.":"Seat preferences are not reservations. Submitting for a live service creates a pending, unpaid request only; it does not lock seats, take payment, or confirm a ticket.";
+ $("#seatInventoryNote").textContent=demoMode?"DEMO ONLY: these sample seats are fictional and do not represent a real coach.":"Seat choices are held for up to 10 minutes only after the backend reservation migration is installed. The hold is temporary and does not confirm a ticket.";
+ $("#bookingNotice").textContent=demoMode?"Demo only: submitting shows a preview status and sends no passenger details to the server. No booking or payment is created.":"Submitting for a live service attempts a temporary 10-minute seat hold. The request remains pending and unpaid; no ticket is confirmed until a verified payment/confirmation workflow is added.";
  bookingSeatGrid.replaceChildren();
  bookingSeatRows.forEach(rowSeats=>{
   const row=node("div","booking-seat-row");
@@ -486,8 +486,8 @@ bookingForm.addEventListener("submit",async event=>{
   if(!response.ok)throw new Error(data.error||"Unable to submit booking request.");
   const booking=data.booking||{};
   bookingForm.hidden=true;bookingStatus.className="booking-status pending visible";
-  const title=node("strong","","Request received · pending");
-  const detail=node("div","","Request ID: "+(booking.id||"not returned")+". Status: "+(booking.status||"pending")+". Payment: "+(booking.payment_status||"unpaid")+". "+(data.message||"No ticket has been confirmed."));
+  const title=node("strong","","Request received · temporary seat hold");
+  const detail=node("div","","Request ID: "+(booking.id||"not returned")+". Status: "+(booking.status||"pending")+". Payment: "+(booking.payment_status||"unpaid")+". Hold expires: "+(booking.hold_expires_at||"not returned")+". "+(data.message||"No ticket has been confirmed."));
   bookingStatus.replaceChildren(title,detail);
  }catch(error){
   bookingStatus.className="booking-status error visible";
@@ -514,11 +514,13 @@ trackBookingForm.addEventListener("submit",async event=>{
   const b=data.booking||{},service=b.service||{};
   const pending=b.status!=="confirmed";
   const title=node("strong","",pending?"Request status: "+(b.status||"pending"):"Booking status: confirmed");
-  const message=node("div","",data.message||"Current saved request status.");
+  const holdText=b.hold_expires_at?"Active seat hold until "+String(b.hold_expires_at):"No active seat hold is recorded (it may have expired).";
+  const message=node("div","",(data.message||"Current saved request status.")+" "+holdText);
   const grid=node("div","track-detail-grid");
   const details=[
    ["Reference",b.id||"—"],
    ["Payment",b.payment_status||"unpaid"],
+   ["Seat hold",b.hold_expires_at?String(b.hold_expires_at):"None active"],
    ["Journey",(service.origin||"—")+" → "+(service.destination||"—")],
    ["Travel date",service.journey_date?String(service.journey_date).slice(0,10):"—"],
    ["Operator",service.operator_name||"—"],
