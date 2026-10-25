@@ -13,6 +13,8 @@ Responsive bus-search and booking-request prototype with Vercel serverless APIs,
 - `POST /api/payments/create-order`: calculates the amount server-side and creates/reuses a Razorpay order for a booking with active holds.
 - `POST /api/payments/webhook`: verifies the Razorpay webhook HMAC signature and only confirms a ticket after a captured payment matches the stored order amount/currency and all seat holds are still active.
 - PostgreSQL functions serialize seat claims per service, protect against duplicate active/confirmed seat claims, make webhook confirmation idempotent, and create a ticket reference after verified payment.
+- Confirmed ticket details can be printed or saved as a PDF from the booking tracker.
+- GitHub Actions runs backend and inline frontend JavaScript syntax checks on pushes and pull requests.
 
 ## Required database setup
 
@@ -57,7 +59,7 @@ npm run check
 npm run dev
 ```
 
-`npm run check` checks JavaScript syntax for the serverless handlers. It does not replace integration tests against a test database and Razorpay test account.
+`npm run check` checks JavaScript syntax for serverless handlers and inline frontend JavaScript. GitHub Actions runs the same check on pushes and pull requests. It does not replace integration tests against a test database and Razorpay test account.
 
 ## Operational safeguards and known limitations
 
