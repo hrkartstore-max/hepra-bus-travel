@@ -201,6 +201,12 @@ footer{background:#0b2a26;color:#c5d8d2}
 .track-detail b{display:block;font-size:11px;margin-top:3px}
 @media(max-width:650px){.track-panel{grid-template-columns:1fr;padding:16px}.track-submit{width:100%}.track-detail-grid{grid-template-columns:1fr 1fr}}
 
+
+/* V6 pending-request cancellation */
+.track-cancel{margin-top:14px;border:1px solid #c9867d;background:#fff7f5;color:#8d3b32;border-radius:10px;padding:11px 14px;font-size:10px;font-weight:800}
+.track-cancel:hover{background:#f8e6e2}
+.track-cancel:disabled{opacity:.6;cursor:wait}
+
 </style>
 </head>
 <body>
@@ -529,6 +535,29 @@ trackBookingForm.addEventListener("submit",async event=>{
   details.forEach(([label,value])=>{const cell=node("div","track-detail"),small=node("span","",label),strong=node("b","",value);cell.append(small,strong);grid.append(cell)});
   trackBookingResult.className="track-result visible "+(pending?"pending":"");
   trackBookingResult.replaceChildren(title,message,grid);
+  if(b.status==="pending"){
+   const cancelBtn=node("button","track-cancel","Cancel request & release seat holds");
+   cancelBtn.type="button";
+   cancelBtn.addEventListener("click",async()=>{
+    if(!window.confirm("Cancel this pending booking request and release its temporary seat holds?"))return;
+    cancelBtn.disabled=true;cancelBtn.textContent="Cancelling…";
+    try{
+     const response=await fetch("/api/booking-cancel",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({id,email})});
+     let result={};try{result=await response.json()}catch(error){}
+     if(!response.ok)throw new Error(result.error||"Unable to cancel this request.");
+     trackBookingResult.className="track-result visible pending";
+     trackBookingResult.replaceChildren(node("strong","","Request cancelled"),node("div","",result.message||"The pending request was cancelled."));
+     const refreshed=new Event("submit",{bubbles:true,cancelable:true});
+     trackBookingForm.dispatchEvent(refreshed);
+    }catch(error){
+     trackBookingResult.className="track-result visible error";
+     trackBookingResult.textContent=error.message||"Unable to cancel this request.";
+    }finally{
+     cancelBtn.disabled=false;cancelBtn.textContent="Cancel request & release seat holds";
+    }
+   });
+   trackBookingResult.append(cancelBtn);
+  }
  }catch(error){
   trackBookingResult.className="track-result visible error";
   trackBookingResult.textContent=(error.message||"Unable to look up this booking.")+" Please check the reference and email.";
