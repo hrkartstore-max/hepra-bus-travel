@@ -182,6 +182,25 @@ footer{background:#0b2a26;color:#c5d8d2}
 .booking-seat-legend .aisle-key{border:0;background:#e7e2d7}
 @media(max-width:390px){.booking-seat-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 12px minmax(0,1fr) minmax(0,1fr);gap:5px}.booking-seat{font-size:10px}.booking-seat-legend{gap:9px}}
 
+
+/* V4 booking reference tracker */
+.track-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;padding:22px;background:#fffefa;border:1px solid #e6e1d5;border-radius:18px;box-shadow:0 14px 40px #0f3b3608}
+.track-field label{display:block;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;color:#758178;margin:0 0 8px 3px}
+.track-field input{width:100%;height:48px;border:1px solid #deded3;border-radius:10px;padding:0 12px;background:#fff;color:#1b2738;font-size:12px;min-width:0}
+.track-field input:focus{outline:2px solid #ffb23877;border-color:#c5a366}
+.track-submit{height:48px;border:0;border-radius:10px;padding:0 17px;background:#0f3b36;color:white;font-size:11px;font-weight:800;white-space:nowrap}
+.track-submit:disabled{opacity:.6;cursor:wait}
+.track-result{display:none;margin-top:13px;padding:17px;border-radius:14px;border:1px solid #d9e4db;background:#edf4ee;color:#234c34;font-size:11px;line-height:1.8;overflow-wrap:anywhere}
+.track-result.visible{display:block}
+.track-result.error{border-color:#ebd0ca;background:#fbefed;color:#8d3b32}
+.track-result.pending{border-color:#e6d7b6;background:#f5eedf;color:#725a2d}
+.track-result strong{display:block;font:800 15px Manrope,sans-serif;margin-bottom:7px}
+.track-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.track-detail{border:1px solid currentColor;border-color:#c9d9cb88;border-radius:10px;padding:10px 12px}
+.track-detail span{display:block;font-size:9px;opacity:.75;text-transform:uppercase;letter-spacing:.8px}
+.track-detail b{display:block;font-size:11px;margin-top:3px}
+@media(max-width:650px){.track-panel{grid-template-columns:1fr;padding:16px}.track-submit{width:100%}.track-detail-grid{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -222,6 +241,18 @@ footer{background:#0b2a26;color:#c5d8d2}
 <article class="promise-card"><span class="promise-icon">◷</span><h3>Clear comparisons</h3><p>Review configured departures, service types and fares together when operator data is available.</p></article>
 <article class="promise-card"><span class="promise-icon">✧</span><h3>Built for the details</h3><p>A refined, responsive interface made to feel effortless on mobile, tablet and desktop.</p></article>
 </div></section>
+
+<section class="section" id="booking-status-lookup">
+  <div class="section-head"><div><div class="section-kicker">Your journey, at a glance</div><h2>Track a booking request.</h2><p>Use the reference returned after submitting a request and the same email address.</p></div></div>
+  <form class="track-panel" id="trackBookingForm">
+    <div class="track-field"><label for="trackBookingId">Booking reference</label><input id="trackBookingId" name="id" required maxlength="36" autocomplete="off" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+    <div class="track-field"><label for="trackBookingEmail">Booking email</label><input id="trackBookingEmail" name="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com"></div>
+    <button class="track-submit" id="trackBookingSubmit" type="submit">Check status ↗</button>
+  </form>
+  <div class="track-result" id="trackBookingResult" role="status" aria-live="polite"></div>
+  <p class="status">Status lookup shows the saved request only. Pending/unpaid means no ticket is confirmed and no payment is recorded.</p>
+</section>
+
 <section class="section" id="faq"><div class="section-head"><div><div class="section-kicker">Good to know</div><h2>Before you set off.</h2><p>Clear answers for a smoother start.</p></div></div>
 <div class="faq-grid">
 <details class="faq-item"><summary>How do I find a bus service?</summary><p>Enter your departure city, destination and travel date, then choose Discover services. Popular journey cards can fill in the cities for you.</p></details>
@@ -464,6 +495,43 @@ bookingForm.addEventListener("submit",async event=>{
  }finally{
   bookingSubmit.disabled=selectedBookingSeats.size===0;
   bookingSubmit.textContent=demoMode?"Preview demo request":"Submit pending booking request";
+ }
+});
+
+
+/* V4 booking request status lookup */
+const trackBookingForm=$("#trackBookingForm"),trackBookingResult=$("#trackBookingResult"),trackBookingSubmit=$("#trackBookingSubmit");
+trackBookingForm.addEventListener("submit",async event=>{
+ event.preventDefault();
+ const id=$("#trackBookingId").value.trim(),email=$("#trackBookingEmail").value.trim();
+ trackBookingResult.className="track-result visible";trackBookingResult.textContent="Checking saved booking request…";
+ trackBookingSubmit.disabled=true;trackBookingSubmit.textContent="Checking…";
+ try{
+  const params=new URLSearchParams({id,email});
+  const response=await fetch("/api/booking-status?"+params.toString(),{headers:{Accept:"application/json"}});
+  let data={};try{data=await response.json()}catch(error){}
+  if(!response.ok)throw new Error(data.error||"Unable to look up this booking.");
+  const b=data.booking||{},service=b.service||{};
+  const pending=b.status!=="confirmed";
+  const title=node("strong","",pending?"Request status: "+(b.status||"pending"):"Booking status: confirmed");
+  const message=node("div","",data.message||"Current saved request status.");
+  const grid=node("div","track-detail-grid");
+  const details=[
+   ["Reference",b.id||"—"],
+   ["Payment",b.payment_status||"unpaid"],
+   ["Journey",(service.origin||"—")+" → "+(service.destination||"—")],
+   ["Travel date",service.journey_date?String(service.journey_date).slice(0,10):"—"],
+   ["Operator",service.operator_name||"—"],
+   ["Seat preferences",Array.isArray(b.seats)?b.seats.join(", "):"—"]
+  ];
+  details.forEach(([label,value])=>{const cell=node("div","track-detail"),small=node("span","",label),strong=node("b","",value);cell.append(small,strong);grid.append(cell)});
+  trackBookingResult.className="track-result visible "+(pending?"pending":"");
+  trackBookingResult.replaceChildren(title,message,grid);
+ }catch(error){
+  trackBookingResult.className="track-result visible error";
+  trackBookingResult.textContent=(error.message||"Unable to look up this booking.")+" Please check the reference and email.";
+ }finally{
+  trackBookingSubmit.disabled=false;trackBookingSubmit.textContent="Check status ↗";
  }
 });
 
