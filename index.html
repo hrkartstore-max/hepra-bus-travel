@@ -583,6 +583,7 @@ trackBookingForm.addEventListener("submit",async event=>{
      const response=await fetch("/api/payments/create-order",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({id,email})});
      let order={};try{order=await response.json()}catch(error){}
      if(!response.ok)throw new Error(order.error||"Unable to prepare payment.");
+     const cancelControl=trackBookingResult.querySelector(".track-cancel");if(cancelControl)cancelControl.remove();
      const checkout=new window.Razorpay({
       key:order.keyId,order_id:order.orderId,amount:order.amount,currency:order.currency||"INR",
       name:"HEPRA BUS",description:"Bus ticket booking",prefill:{email},
