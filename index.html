@@ -214,6 +214,16 @@ footer{background:#0b2a26;color:#c5d8d2}
 .track-ticket{border:1px solid #9dc7a6;background:#eaf5ec;color:#215632;border-radius:10px;padding:12px;margin-top:12px;font-size:11px;line-height:1.7}
 .track-ticket strong{display:block;font:800 16px Manrope,sans-serif;letter-spacing:1px}
 
+
+.track-print{margin-top:12px;border:1px solid #cbd3dc;background:#fff;color:#243348;border-radius:10px;padding:11px 14px;font-size:10px;font-weight:800}
+@media print{
+ body *{visibility:hidden!important}
+ #trackBookingResult,#trackBookingResult *{visibility:visible!important}
+ #trackBookingResult{position:absolute!important;left:0!important;top:0!important;width:100%!important;margin:0!important;border:0!important;box-shadow:none!important;background:white!important;color:#111!important}
+ .track-pay,.track-cancel,.track-print{display:none!important}
+ .track-detail{break-inside:avoid}
+}
+
 </style>
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 </head>
@@ -549,6 +559,10 @@ trackBookingForm.addEventListener("submit",async event=>{
    const ticket=node("div","track-ticket");
    ticket.append(node("div","","Payment verified · Ticket confirmed"),node("strong","",b.ticket_reference),node("div","","Keep this reference for your journey."));
    trackBookingResult.append(ticket);
+   const printBtn=node("button","track-print","Print / save ticket as PDF ↗");
+   printBtn.type="button";
+   printBtn.addEventListener("click",()=>window.print());
+   trackBookingResult.append(printBtn);
   }
   if(b.status==="pending"&&b.payment_status==="paid"&&!b.ticket_reference){
    const review=node("div","track-ticket");
