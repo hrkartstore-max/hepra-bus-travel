@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111b2e">
+<meta name="theme-color" content="#0f3b36">
 <meta name="description" content="Discover a more considered way to travel. Search routes and explore bus services with HEPRA BUS.">
 <title>HEPRA BUS — Travel, elevated.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,6 +24,76 @@ main{padding:55px 0 70px}.section{margin-top:56px}.section:first-child{margin-to
 @media(max-width:950px){.nav-links{gap:16px}.hero-art{left:35%;opacity:.7}.hero-bus{right:3%;width:58%}.search-grid{grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr) minmax(145px,.8fr)}.search-grid .gold-btn{grid-column:1/-1;width:100%}.routes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.wrap{width:calc(100% - 32px)}.announcement{font-size:8px;letter-spacing:1.2px;padding:9px 10px}.nav{height:66px}.monogram{width:38px;height:38px}.brand{gap:9px}.brand-name{font-size:14px;letter-spacing:2px}.brand-name span{font-size:8px;letter-spacing:3px}.nav-links{display:none}.nav-cta{padding:10px 12px;font-size:10px}.hero{min-height:560px;align-items:start}.hero-art{inset:130px 0 0 0;opacity:.62}.hero-art:before{width:300px;height:300px;right:-10px;top:80px}.hero-art:after{right:-15%;width:110%;height:170px;bottom:15px}.hero-content{padding:52px 0 210px}.kicker{font-size:9px;letter-spacing:2px}.hero h1{font-size:clamp(43px,12vw,60px);letter-spacing:-2.8px;margin:21px 0 16px;max-width:450px}.hero h1 em{letter-spacing:-1.8px}.hero p{font-size:12px;max-width:310px;line-height:1.8}.hero-bottom{margin-top:20px}.hero-bus{right:3%;bottom:53px;width:90%;max-width:410px;height:125px}.hero-bus .body{bottom:20px}.hero-bus .glass{top:11px;left:27px;right:24px;height:40px;gap:5px}.hero-bus .belt{top:63px}.hero-bus .label{left:28px;top:73px;font-size:9px}.hero-bus .wheel{width:45px;height:45px;bottom:4px}.hero-bus .w1{left:45px}.hero-bus .w2{right:45px}.road{width:110%;height:55px;right:-5%}.road:after{top:26px}.search-wrap{margin-top:-42px}.search-panel{padding:19px 16px 16px;border-radius:20px}.panel-head{align-items:flex-start;margin-bottom:18px}.panel-head h2{font-size:17px}.panel-head p{font-size:10px;line-height:1.6}.panel-badge{display:none}.search-grid{grid-template-columns:minmax(0,1fr) 39px minmax(0,1fr);gap:9px}.field input{height:49px;font-size:12px;padding-left:35px}.input-wrap .symbol{left:12px}.swap{width:39px;height:49px}.field-date{grid-column:1/-1}.search-grid .gold-btn{grid-column:1/-1;height:51px}.date-quick{gap:6px}.date-chip{padding:7px 10px}.filter-row{gap:6px}.filter-chip{padding:8px 11px}.filter-count{width:100%;margin-left:0}.panel-foot{font-size:9px;justify-content:flex-start;gap:10px}.panel-foot span:last-child{width:100%;line-height:1.6}main{padding:39px 0 48px}.section{margin-top:43px}.section-head{margin-bottom:17px;align-items:flex-start}.section-head h2{font-size:25px}.section-head p{font-size:11px}.text-link{font-size:10px}.routes{gap:10px}.route{border-radius:14px}.route-art{height:78px}.route-art .sun{width:27px;height:27px;right:14px;top:13px}.route-art .hill{height:44px}.route-art .hill2{height:38px}.route-info{padding:12px 11px 13px}.route-label{font-size:8px;letter-spacing:1px}.route-line{font-size:11px;gap:5px;flex-wrap:wrap}.route-info small{font-size:9px;margin-top:7px}.promise{padding:22px 17px;border-radius:20px}.promise .section-head h2{font-size:24px}.promise-grid{grid-template-columns:1fr;gap:9px}.promise-card{padding:16px;display:grid;grid-template-columns:38px 1fr;column-gap:13px;align-items:start}.promise-icon{grid-row:span 2}.promise-card h3{margin:1px 0 5px}.promise-card p{grid-column:2}.faq-grid{grid-template-columns:1fr;gap:9px}.faq-item{padding-inline:14px}.faq-item summary{font-size:11px}.results-heading h2{font-size:20px}.sort-control{max-width:145px;font-size:10px}.bus-card{grid-template-columns:1fr;padding:16px;gap:14px;border-radius:16px}.times{gap:10px;margin-top:15px}.time strong{font-size:16px}.duration{min-width:66px}.bus-price{text-align:left;border-top:1px solid var(--line);padding-top:13px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.bus-price small{display:none}.bus-price strong{font-size:22px;margin:0}.bus-price .availability{margin-left:auto}.footer-main{flex-direction:column}.footer-note{max-width:100%}.footer-bottom{font-size:8px}.notice{font-size:9px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* HEPRA BUS visual refresh — inspired by the supplied BusGo reference */
+:root{color-scheme:light;--night:#0f3b36;--night2:#14534b;--night3:#1d6b60;--gold:#ffb238;--gold2:#ffe0a0;--cream:#e9f1ed;--paper:#ffffff;--ink:#0d1f1c;--muted:#5b706b;--line:#cfdcd7;--green:#1f9d6b;--red:#d64550;--shadow:0 12px 32px rgba(8,30,26,.10);--radius:22px}
+body{background:var(--cream);color:var(--ink);font-family:Manrope,system-ui,sans-serif;letter-spacing:-.005em}
+.announcement{background:#0b2a26;color:#d7e8e2;letter-spacing:1.5px}
+.announcement b{color:var(--gold)}
+header{background:#0f3b36f5;border-bottom:1px solid #ffffff1c;box-shadow:0 4px 18px rgba(8,30,26,.18)}
+.monogram{border-color:#ffb23885;color:var(--gold);border-radius:13px}
+.monogram:after{border-color:#ffb2383b;border-radius:9px}
+.brand-name span{color:var(--gold)}
+.nav-links{color:#c5ded7}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{border-color:#ffb2388a;border-radius:999px;color:#ffe0a0}
+.nav-cta:hover{background:#ffb2381a}
+.hero{background:var(--night);min-height:500px}
+.hero-art{background:radial-gradient(ellipse at 62% 42%,#24766b 0%,#174d45 34%,transparent 69%),linear-gradient(105deg,#0f3b36 0%,#12453e 52%,#1c5d53 100%)}
+.hero-art:before{border-color:#ffb23830;box-shadow:0 0 0 36px #ffb2380d,0 0 0 72px #ffb23808}
+.hero-art:after{background:linear-gradient(180deg,#22564d,#0b2a26);border-color:#ffb23855;box-shadow:0 -18px 65px #ffb23812}
+.road{background:linear-gradient(180deg,#103a34,#092520);border-top-color:#ffb23855}
+.road:after{border-top-color:#ffb23880}
+.hero-bus .body{background:linear-gradient(160deg,#fff7e8,#e5d4af 68%,#bca16a);border-bottom-color:#d19b37}
+.hero-bus .belt{background:var(--gold)}
+.hero h1 em{color:var(--gold)}
+.kicker{color:var(--gold)}
+.kicker:before{background:var(--gold)}
+.hero-bottom .seal{border-color:#ffb23875;color:var(--gold)}
+.search-wrap{z-index:5}
+.search-panel{background:var(--paper);border:1px solid #dce7e2;border-radius:24px;box-shadow:0 18px 46px rgba(8,30,26,.14)}
+.panel-head h2{font-family:Manrope,sans-serif;letter-spacing:-.7px}
+.panel-badge{background:#fff2d8;color:#7d5100}
+.panel-badge i{background:var(--gold)}
+.field input,.field select{border-color:var(--line);border-radius:14px;background:#f4f8f6}
+.field input:focus,.field select:focus{border-color:var(--night);box-shadow:0 0 0 4px #ffb23840}
+.gold-btn{background:var(--gold);color:#2b1c00;border-radius:16px;box-shadow:inset 0 -3px 0 #0002,0 8px 16px #ffb23835}
+.gold-btn:hover{background:#ffc45d;transform:translateY(-1px)}
+.swap{background:var(--gold);color:#2b1c00;border-radius:14px}
+.date-chip,.filter-chip{border-color:var(--line);border-radius:999px}
+.date-chip.active,.filter-chip.active{background:var(--night);border-color:var(--night);color:white}
+main{background:var(--cream)}
+.section-head h2,.results-heading h2{font-family:Manrope,sans-serif;letter-spacing:-1px}
+.route{background:white;border:1px solid #dce7e2;border-radius:20px;box-shadow:0 8px 24px rgba(8,30,26,.07);overflow:hidden}
+.route:hover{border-color:#b5cec5;box-shadow:0 14px 30px rgba(8,30,26,.12);transform:translateY(-2px)}
+.route-art{background:linear-gradient(135deg,#0f3b36,#1d7a6e)}
+.route-info{background:white}
+.route-label{color:#6b8079}
+.promise{background:linear-gradient(135deg,#0f3b36,#146059);border-radius:24px;box-shadow:0 16px 36px rgba(8,30,26,.16)}
+.promise .section-kicker{color:var(--gold)}
+.promise-card{border-radius:17px;background:#ffffff08;border-color:#ffffff20}
+.promise-icon{border-color:#ffb23865;color:var(--gold)}
+.faq-item{background:white;border-color:#dce7e2;border-radius:17px;box-shadow:0 5px 18px rgba(8,30,26,.04)}
+.faq-item summary:after{color:#b57a15}
+.notice{border-color:#f0d69b;background:#fff4d9;color:#72521b;border-radius:16px}
+.notice strong{color:#4b3511}
+.bus-card{background:white;border:1px solid #dce7e2;border-radius:20px;box-shadow:0 10px 28px rgba(8,30,26,.08);transition:transform .18s,box-shadow .18s}
+.bus-card:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(8,30,26,.13)}
+.bus-price strong{color:var(--night)}
+.availability{background:#e4f5ed;color:#16754f;border-radius:999px}
+footer{background:#0b2a26;color:#c5d8d2}
+.footer-brand .monogram{border-color:#ffb23885;color:var(--gold)}
+.footer-brand small{color:var(--gold)}
+.footer-note{color:#a4bdb5}
+.footer-bottom{border-color:#ffffff20;color:#9bb3ab}
+@media(max-width:650px){
+ .hero{background:radial-gradient(120% 90% at 100% 0%,#1d6b62 0,transparent 60%),var(--night)}
+ .search-panel{border-radius:22px;box-shadow:0 14px 34px rgba(8,30,26,.13)}
+ .route{border-radius:17px}
+ .bus-card{border-radius:19px;box-shadow:0 8px 22px rgba(8,30,26,.09)}
+ .promise{border-radius:22px}
+}
+
 </style>
 </head>
 <body>
