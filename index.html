@@ -483,7 +483,7 @@ date.addEventListener("change",()=>document.querySelectorAll("[data-date-offset]
 $("#swapBtn").addEventListener("click",()=>{const old=from.value;from.value=to.value;to.value=old;from.focus()});
 document.querySelectorAll(".route").forEach(button=>button.addEventListener("click",()=>{from.value=button.dataset.from;to.value=button.dataset.to;$("#search").scrollIntoView({behavior:"smooth",block:"center"});date.focus()}));
 function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el}
-function showEmpty(title,description){const box=node("div","empty");box.append(node("div","big","✧"),node("h3","",title),node("p","",description));results.append(box)}
+function showEmpty(title,description){results.removeAttribute("aria-busy");const box=node("div","empty");box.append(node("div","big","✧"),node("h3","",title),node("p","",description));results.append(box)}
 function showSearchSkeletons(){
  const group=node("div","search-skeletons");group.setAttribute("aria-hidden","true");
  for(let i=0;i<3;i++){const card=node("div","search-skeleton-card"),left=node("div",""),right=node("div","");left.append(node("span","skeleton-line wide"),node("span","skeleton-line mid"),node("span","skeleton-line short"),node("span","skeleton-line short"));right.append(node("span","skeleton-line skeleton-price"),node("span","skeleton-line short"));card.append(left,right);group.append(card)}
