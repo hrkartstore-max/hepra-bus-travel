@@ -5,6 +5,9 @@ Responsive bus-search and booking-request prototype with Vercel serverless APIs,
 ## Features
 
 - Responsive route search and bus listing.
+- Phase 1 UI improvements: city suggestions, recent searches stored in the browser, shareable search URLs with browser back/forward restoration, search skeleton loading states, bus-type/departure/arrival/maximum-fare filters, removable active-filter chips, clear-all filters, and sorting by departure, arrival, duration, fare, listed seat count, or operator.
+- Search results only show live database services when configured. Demo buses are separate and clearly marked; sample seat layouts and pickup/drop choices are illustrative and are not operator inventory.
+- Sort/filter values use fields returned by the current API. Ratings, reviews, amenities, live tracking, and daily lowest-fare calendars are not claimed as live features unless the backend supplies verified data.
 - `GET /api/health`: database health check.
 - `GET /api/buses?from=Chennai&to=Madurai&date=YYYY-MM-DD`: verified service search.
 - `POST /api/bookings`: pending booking request and 10-minute database-backed seat holds.
