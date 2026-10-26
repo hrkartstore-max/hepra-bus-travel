@@ -317,6 +317,16 @@ footer{background:#0b2a26;color:#c5d8d2}
 @keyframes hepra-shimmer{to{background-position:-220% 0}}
 @media(max-width:650px){.search-skeleton-card{grid-template-columns:minmax(0,1fr) 85px;padding:15px;min-height:130px}.skeleton-line.wide{width:85%}.skeleton-line.mid{width:55%}}
 @media(prefers-reduced-motion:reduce){.skeleton-line{animation:none;background:#e8ede8}}
+.advanced-filters{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:12px 0 16px;padding:14px;border:1px solid #dbe4dd;border-radius:16px;background:#f8faf7}
+.advanced-filter-field{display:grid;gap:6px;flex:1;min-width:150px;color:#52675c;font-size:10px;font-weight:800}
+.advanced-filter-field select{width:100%;min-height:42px;border:1px solid #d9e1d9;border-radius:10px;background:white;color:#233d33;padding:0 10px;font-size:12px}
+.price-filter{min-width:180px}.price-filter span{font-size:11px;color:#173d32}.price-filter input{width:100%;accent-color:#176b53;min-height:28px}
+.clear-filters{min-height:42px;border:1px solid #d8e2d9;border-radius:10px;padding:0 13px;background:white;color:#315748;font-size:11px;font-weight:800}
+.clear-filters:disabled{opacity:.45;cursor:not-allowed}
+.active-filter-chips{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 12px}
+.active-filter-chips:empty{display:none}
+.active-filter-chip{display:inline-flex;align-items:center;gap:7px;min-height:32px;border-radius:999px;background:#e0eee5;color:#1c5945;padding:6px 10px;font-size:10px;font-weight:800}
+@media(max-width:650px){.advanced-filters{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:11px}.advanced-filter-field{min-width:0;font-size:10px}.advanced-filter-field select{font-size:11px;min-height:44px}.price-filter{grid-column:1/-1}.clear-filters{min-height:44px}}
 </style>
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 </head>
@@ -354,7 +364,15 @@ footer{background:#0b2a26;color:#c5d8d2}
 <button class="route" type="button" data-from="Bengaluru" data-to="Chennai"><div class="route-art"><span class="sun"></span><span class="hill"></span><span class="hill2"></span></div><div class="route-info"><div class="route-label">City to city · South India</div><div class="route-line">Bengaluru <span>↗</span> Chennai</div><small>Discover this journey →</small></div></button>
 <button class="route" type="button" data-from="Chennai" data-to="Tiruchirappalli"><div class="route-art"><span class="sun"></span><span class="hill"></span><span class="hill2"></span></div><div class="route-info"><div class="route-label">Heritage stop · Tamil Nadu</div><div class="route-line">Chennai <span>↗</span> Trichy</div><small>Discover this journey →</small></div></button>
 </div></section>
-<section class="results-section" id="resultsSection" hidden><div class="results-heading"><h2>Services for your journey</h2><label class="sr-only" for="sortResults">Sort services</label><select class="sort-control" id="sortResults" aria-label="Sort bus services"><option value="departure">Sort: Departure</option><option value="arrival">Sort: Arrival</option><option value="duration">Sort: Duration</option><option value="price">Sort: Lowest fare</option><option value="seats">Sort: Seats listed</option><option value="operator">Sort: Operator</option></select></div><p class="status" id="status" role="status" aria-live="polite"></p><div class="filter-row" id="filterRow" aria-label="Filter bus services"><span class="filter-label">Filter by</span><button type="button" class="filter-chip active" data-filter="all" aria-pressed="true">All services</button><button type="button" class="filter-chip" data-filter="ac" aria-pressed="false">AC</button><button type="button" class="filter-chip" data-filter="sleeper" aria-pressed="false">Sleeper</button><button type="button" class="filter-chip" data-filter="seater" aria-pressed="false">Seater</button><span class="filter-count" id="filterCount"></span></div><div class="results" id="results"></div></section>
+<section class="results-section" id="resultsSection" hidden><div class="results-heading"><h2>Services for your journey</h2><label class="sr-only" for="sortResults">Sort services</label><select class="sort-control" id="sortResults" aria-label="Sort bus services"><option value="departure">Sort: Departure</option><option value="arrival">Sort: Arrival</option><option value="duration">Sort: Duration</option><option value="price">Sort: Lowest fare</option><option value="seats">Sort: Seats listed</option><option value="operator">Sort: Operator</option></select></div><p class="status" id="status" role="status" aria-live="polite"></p><div class="filter-row" id="filterRow" aria-label="Filter bus services"><span class="filter-label">Filter by</span><button type="button" class="filter-chip active" data-filter="all" aria-pressed="true">All services</button><button type="button" class="filter-chip" data-filter="ac" aria-pressed="false">AC</button><button type="button" class="filter-chip" data-filter="sleeper" aria-pressed="false">Sleeper</button><button type="button" class="filter-chip" data-filter="seater" aria-pressed="false">Seater</button><span class="filter-count" id="filterCount"></span></div>
+<div class="advanced-filters" id="advancedFilters" aria-label="Additional bus filters">
+ <label class="advanced-filter-field">Departure time<select id="departureFilter" aria-label="Filter by departure time"><option value="all">Any time</option><option value="morning">Morning · 6 AM–12 PM</option><option value="afternoon">Afternoon · 12–6 PM</option><option value="evening">Evening · 6 PM–10 PM</option><option value="night">Night · 10 PM–6 AM</option></select></label>
+ <label class="advanced-filter-field">Arrival time<select id="arrivalFilter" aria-label="Filter by arrival time"><option value="all">Any time</option><option value="morning">Morning · 6 AM–12 PM</option><option value="afternoon">Afternoon · 12–6 PM</option><option value="evening">Evening · 6 PM–10 PM</option><option value="night">Night · 10 PM–6 AM</option></select></label>
+ <label class="advanced-filter-field price-filter">Maximum fare <span id="maxFareLabel">Any fare</span><input id="maxFareFilter" aria-label="Maximum fare in rupees" type="range" min="0" max="5000" step="50" value="5000"></label>
+ <button type="button" id="clearFilters" class="clear-filters" disabled>Clear filters</button>
+</div>
+<div class="active-filter-chips" id="activeFilterChips" aria-live="polite"></div>
+<div class="results" id="results"></div></section>
 <section class="section promise" id="experience"><div class="section-head"><div><div class="section-kicker">The HEPRA standard</div><h2>Less friction. More journey.</h2><p>A considered travel experience starts with clarity at every step.</p></div></div><div class="promise-grid">
 <article class="promise-card"><span class="promise-icon">⌖</span><h3>Thoughtful discovery</h3><p>Search a route and travel date in a few simple steps, without clutter or confusion.</p></article>
 <article class="promise-card"><span class="promise-icon">◷</span><h3>Clear comparisons</h3><p>Review configured departures, service types and fares together when operator data is available.</p></article>
@@ -461,6 +479,20 @@ footer{background:#0b2a26;color:#c5d8d2}
 const $=s=>document.querySelector(s);
 const form=$("#searchForm"),from=$("#from"),to=$("#to"),date=$("#date"),btn=$("#searchBtn"),section=$("#resultsSection"),statusEl=$("#status"),results=$("#results"),sortSelect=$("#sortResults"),filterCount=$("#filterCount");
 let currentBuses=[],activeFilter="all",currentRoute={from:"",to:""},demoMode=false;
+const departureFilter=$("#departureFilter"),arrivalFilter=$("#arrivalFilter"),maxFareFilter=$("#maxFareFilter"),maxFareLabel=$("#maxFareLabel"),clearFiltersButton=$("#clearFilters"),activeFilterChips=$("#activeFilterChips");
+const DEFAULT_MAX_FARE=5000;
+function minutesOf(value){const match=String(value||"").match(/^(\d{1,2}):(\d{2})/);return match?Number(match[1])*60+Number(match[2]):null}
+function timeMatches(value,slot){if(slot==="all")return true;const minutes=minutesOf(value);if(minutes===null)return false;if(slot==="morning")return minutes>=360&&minutes<720;if(slot==="afternoon")return minutes>=720&&minutes<1080;if(slot==="evening")return minutes>=1080&&minutes<1320;return minutes>=1320||minutes<360}
+function updateFilterControls(){
+ const fareCap=Number(maxFareFilter.value);maxFareLabel.textContent=fareCap>=Number(maxFareFilter.max)?"Any fare":"Up to ₹"+fareCap.toLocaleString("en-IN");
+ const chips=[];
+ if(activeFilter!=="all")chips.push(activeFilter.toUpperCase());
+ if(departureFilter.value!=="all")chips.push("Departure: "+departureFilter.options[departureFilter.selectedIndex].text.split(" · ")[0]);
+ if(arrivalFilter.value!=="all")chips.push("Arrival: "+arrivalFilter.options[arrivalFilter.selectedIndex].text.split(" · ")[0]);
+ if(fareCap<Number(maxFareFilter.max))chips.push("Fare ≤ ₹"+fareCap.toLocaleString("en-IN"));
+ activeFilterChips.replaceChildren();chips.forEach(label=>activeFilterChips.append(node("span","active-filter-chip",label)));
+ clearFiltersButton.disabled=chips.length===0;
+}
 function localISO(day){return [day.getFullYear(),String(day.getMonth()+1).padStart(2,"0"),String(day.getDate()).padStart(2,"0")].join("-")}
 const today=new Date();date.min=localISO(today);date.value=date.min;$("#year").textContent=new Date().getFullYear();
 const recentSearchesEl=$("#recentSearches"),recentSearchChips=$("#recentSearchChips");
@@ -494,7 +526,18 @@ function formatTime(value){if(!value)return "—";const match=String(value).matc
 function renderBuses(){
  results.removeAttribute("aria-busy");results.replaceChildren();
  const mode=sortSelect.value;
- const filtered=currentBuses.filter(bus=>{const type=String(bus.bus_type||"").toLowerCase();if(activeFilter==="ac")return /\bac\b|air.?condition/i.test(type);if(activeFilter==="sleeper")return /sleeper|berth/i.test(type);if(activeFilter==="seater")return /seater|semi.?sleeper|sitting/i.test(type);return true});
+ const maxFare=Number(maxFareFilter.value),maxFareLimit=Number(maxFareFilter.max);
+ const filtered=currentBuses.filter(bus=>{
+  const type=String(bus.bus_type||"").toLowerCase(),fare=Number(bus.fare);
+  if(activeFilter==="ac"&&!(/\bac\b|air.?condition/i.test(type)))return false;
+  if(activeFilter==="sleeper"&&!(/sleeper|berth/i.test(type)))return false;
+  if(activeFilter==="seater"&&!(/seater|semi.?sleeper|sitting/i.test(type)))return false;
+  if(departureFilter.value!=="all"&&!timeMatches(bus.departure_time,departureFilter.value))return false;
+  if(arrivalFilter.value!=="all"&&!timeMatches(bus.arrival_time,arrivalFilter.value))return false;
+  if(maxFare<maxFareLimit&&(!Number.isFinite(fare)||fare>maxFare))return false;
+  return true;
+ });
+ updateFilterControls();
  filterCount.textContent=filtered.length+" of "+currentBuses.length+" services";
  if(!filtered.length){showEmpty("No matching services","Try another service filter or choose All services to see every configured option.");return}
  const timeValue=value=>{const match=String(value||"").match(/^(\d{1,2}):(\d{2})/);return match?Number(match[1])*60+Number(match[2]):Number.MAX_SAFE_INTEGER};
@@ -549,6 +592,8 @@ function useDemoBuses(origin,destination,reason){
 }
 sortSelect.addEventListener("change",renderBuses);
 document.querySelectorAll("[data-filter]").forEach(chip=>chip.addEventListener("click",()=>{activeFilter=chip.dataset.filter;document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item===chip;item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses()}));
+[departureFilter,arrivalFilter,maxFareFilter].forEach(control=>control.addEventListener("input",()=>renderBuses()));
+clearFiltersButton.addEventListener("click",()=>{activeFilter="all";departureFilter.value="all";arrivalFilter.value="all";maxFareFilter.value=maxFareFilter.max;document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item.dataset.filter==="all";item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses()});
 form.addEventListener("submit",async event=>{
  event.preventDefault();demoMode=false;const origin=from.value.trim(),destination=to.value.trim(),journeyDate=date.value;
  if(origin.toLowerCase()===destination.toLowerCase()){section.hidden=false;statusEl.textContent="";results.replaceChildren();showEmpty("Choose two different cities","Your departure and destination need to be different.");section.scrollIntoView({behavior:"smooth",block:"start"});return}
@@ -569,7 +614,7 @@ form.addEventListener("submit",async event=>{
    showEmpty("No live buses available yet","Add and activate operator services in the HEPRA BUS admin dashboard, then search again. For a visual preview only, use the separate Demo preview option.");
   }else{
    statusEl.textContent=buses.length+" service"+(buses.length===1?"":"s")+" found · "+journeyDate;
-   currentBuses=buses;activeFilter="all";document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item.dataset.filter==="all";item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses();
+   currentBuses=buses;activeFilter="all";departureFilter.value="all";arrivalFilter.value="all";maxFareFilter.value=maxFareFilter.max;document.querySelectorAll("[data-filter]").forEach(item=>{const selected=item.dataset.filter==="all";item.classList.toggle("active",selected);item.setAttribute("aria-pressed",String(selected))});renderBuses();
   }
  }catch(error){
   currentBuses=[];results.replaceChildren();
