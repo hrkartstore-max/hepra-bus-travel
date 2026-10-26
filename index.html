@@ -310,6 +310,13 @@ footer{background:#0b2a26;color:#c5d8d2}
 .demo-ticket-again{background:#eeeae1;color:#34453f}
 @media print{body *{visibility:hidden!important}.demo-ticket,.demo-ticket *{visibility:visible!important}.demo-ticket{position:absolute;left:0;top:0;width:100%;box-shadow:none}.demo-ticket-actions{display:none!important}.booking-overlay{position:static!important;background:white!important;display:block!important;padding:0!important}.booking-dialog{display:none!important}.demo-ticket{display:block!important}}
 @media(max-width:420px){.demo-ticket-route{gap:7px}.demo-ticket-city strong{font-size:16px}.demo-ticket-main{padding:14px}}
+.search-skeletons{display:grid;gap:12px}
+.search-skeleton-card{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:14px;align-items:center;border:1px solid var(--line);border-radius:18px;background:var(--paper);padding:20px;min-height:148px}
+.skeleton-line{display:block;height:12px;border-radius:999px;background:linear-gradient(90deg,#e5ebe6 25%,#f3f6f2 45%,#e5ebe6 65%);background-size:220% 100%;animation:hepra-shimmer 1.3s ease-in-out infinite}
+.skeleton-line.wide{width:58%;height:17px;margin-bottom:12px}.skeleton-line.mid{width:38%;margin-bottom:17px}.skeleton-line.short{width:72%;margin-bottom:9px}.skeleton-price{height:24px;width:74%;margin:0 0 12px auto}
+@keyframes hepra-shimmer{to{background-position:-220% 0}}
+@media(max-width:650px){.search-skeleton-card{grid-template-columns:minmax(0,1fr) 85px;padding:15px;min-height:130px}.skeleton-line.wide{width:85%}.skeleton-line.mid{width:55%}}
+@media(prefers-reduced-motion:reduce){.skeleton-line{animation:none;background:#e8ede8}}
 </style>
 <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 </head>
@@ -477,10 +484,15 @@ $("#swapBtn").addEventListener("click",()=>{const old=from.value;from.value=to.v
 document.querySelectorAll(".route").forEach(button=>button.addEventListener("click",()=>{from.value=button.dataset.from;to.value=button.dataset.to;$("#search").scrollIntoView({behavior:"smooth",block:"center"});date.focus()}));
 function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el}
 function showEmpty(title,description){const box=node("div","empty");box.append(node("div","big","✧"),node("h3","",title),node("p","",description));results.append(box)}
+function showSearchSkeletons(){
+ const group=node("div","search-skeletons");group.setAttribute("aria-hidden","true");
+ for(let i=0;i<3;i++){const card=node("div","search-skeleton-card"),left=node("div",""),right=node("div","");left.append(node("span","skeleton-line wide"),node("span","skeleton-line mid"),node("span","skeleton-line short"),node("span","skeleton-line short"));right.append(node("span","skeleton-line skeleton-price"),node("span","skeleton-line short"));card.append(left,right);group.append(card)}
+ results.replaceChildren(group);results.setAttribute("aria-busy","true");
+}
 function formatTime(value){if(!value)return "—";const match=String(value).match(/^(\d{1,2}):(\d{2})/);if(!match)return String(value);let h=Number(match[1]);const suffix=h>=12?"PM":"AM";h=h%12||12;return h+":"+match[2]+" "+suffix}
  function formatDuration(departure,arrival){const parse=value=>{const m=String(value||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};const start=parse(departure),end=parse(arrival);if(start===null||end===null)return "Duration varies";let mins=end-start;if(mins<0)mins+=1440;if(mins===0)return "Check schedule";const hours=Math.floor(mins/60),minutes=mins%60;return (hours?hours+"h":"")+(minutes?(hours?" ":"")+minutes+"m":"")}
 function renderBuses(){
- results.replaceChildren();
+ results.removeAttribute("aria-busy");results.replaceChildren();
  const mode=sortSelect.value;
  const filtered=currentBuses.filter(bus=>{const type=String(bus.bus_type||"").toLowerCase();if(activeFilter==="ac")return /\bac\b|air.?condition/i.test(type);if(activeFilter==="sleeper")return /sleeper|berth/i.test(type);if(activeFilter==="seater")return /seater|semi.?sleeper|sitting/i.test(type);return true});
  filterCount.textContent=filtered.length+" of "+currentBuses.length+" services";
@@ -544,7 +556,7 @@ form.addEventListener("submit",async event=>{
  const shareParams=new URLSearchParams({from:origin,to:destination,date:journeyDate});
  if(restoringHistory)history.replaceState({hepraSearch:true},"","?"+shareParams.toString());else history.pushState({hepraSearch:true},"","?"+shareParams.toString());
  saveRecentSearch({from:origin,to:destination,date:journeyDate});
- section.hidden=false;results.replaceChildren();statusEl.textContent="Discovering services for "+origin+" → "+destination+"…";btn.disabled=true;btn.textContent="Searching…";
+ section.hidden=false;showSearchSkeletons();statusEl.textContent="Searching verified services for "+origin+" → "+destination+"…";btn.disabled=true;btn.textContent="Searching…";
  try{
   const params=new URLSearchParams({from:origin,to:destination,date:journeyDate});
   const response=await fetch("/api/buses?"+params.toString(),{headers:{Accept:"application/json"}});
