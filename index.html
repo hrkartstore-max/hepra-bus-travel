@@ -126,6 +126,14 @@ footer{background:#0b2a26;color:#c5d8d2}
 .booking-service small{display:block;margin-top:5px;color:#65766e;font-size:10px;line-height:1.6}
 .booking-fare{font:800 21px Manrope,sans-serif;color:#0f3b36;text-align:right}
 .booking-fare small{font:600 9px "DM Sans",sans-serif;color:#6e7a73}
+.recent-searches{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #e8ebe5}
+.recent-searches[hidden]{display:none}
+.recent-searches-label{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:#728078}
+.recent-search-chips{display:flex;flex:1;flex-wrap:wrap;gap:7px}
+.recent-search-chip{display:inline-flex;align-items:center;gap:7px;min-height:36px;border:1px solid #dfe5de;border-radius:999px;background:#f7f9f6;color:#23483c;padding:7px 11px;font-size:11px;font-weight:700;cursor:pointer}
+.recent-search-chip:focus-visible,.recent-clear:focus-visible{outline:3px solid #e8ae43;outline-offset:2px}
+.recent-clear{border:0;background:transparent;color:#69786f;text-decoration:underline;font-size:10px;cursor:pointer;min-height:36px;padding:6px}
+@media(max-width:650px){.recent-searches{gap:7px}.recent-searches-label{width:100%}.recent-search-chip{min-height:40px;font-size:12px}.recent-clear{margin-left:auto}}
 .booking-flow-steps{display:grid;grid-template-columns:1fr 30px 1fr;align-items:center;gap:8px;margin:0 0 18px}
 .booking-flow-step{display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #e2e5de;background:#f4f5f1;color:#7c887f;border-radius:12px;padding:11px 8px;font-size:10px}
 .booking-flow-step span{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#e0e5de;color:#52675b;font-size:10px;font-weight:800}
@@ -320,13 +328,15 @@ footer{background:#0b2a26;color:#c5d8d2}
 <div class="wrap search-wrap" id="search"><form class="search-panel" id="searchForm">
 <div class="panel-head"><div><h2>Where to next?</h2><p>Choose your cities and travel date to discover available services.</p></div><span class="panel-badge"><i></i> JOURNEY PLANNER</span></div>
 <div class="search-grid">
-<div class="field"><label for="from">YOUR DEPARTURE</label><div class="input-wrap"><span class="symbol" aria-hidden="true">⌖</span><input id="from" name="from" autocomplete="address-level2" placeholder="Leaving from" required maxlength="100" value="Chennai"></div></div>
+<div class="field"><label for="from">YOUR DEPARTURE</label><div class="input-wrap"><span class="symbol" aria-hidden="true">⌖</span><input id="from" name="from" list="citySuggestions" autocomplete="address-level2" placeholder="Leaving from" aria-label="Departure city" required maxlength="100" value="Chennai"></div></div>
 <button class="swap" id="swapBtn" type="button" aria-label="Swap origin and destination" title="Swap cities">⇄</button>
-<div class="field"><label for="to">YOUR DESTINATION</label><div class="input-wrap"><span class="symbol" aria-hidden="true">◎</span><input id="to" name="to" autocomplete="address-level2" placeholder="Going to" required maxlength="100" value="Madurai"></div></div>
+<div class="field"><label for="to">YOUR DESTINATION</label><div class="input-wrap"><span class="symbol" aria-hidden="true">◎</span><input id="to" name="to" list="citySuggestions" autocomplete="address-level2" placeholder="Going to" aria-label="Destination city" required maxlength="100" value="Madurai"></div></div>
 <div class="field field-date"><label for="date">DATE OF TRAVEL</label><div class="input-wrap"><span class="symbol" aria-hidden="true">▦</span><input id="date" name="date" type="date" required></div></div>
 <button class="gold-btn" id="searchBtn" type="submit">Discover services <span aria-hidden="true">↗</span></button>
 </div>
+<datalist id="citySuggestions"><option value="Chennai"></option><option value="Coimbatore"></option><option value="Madurai"></option><option value="Bengaluru"></option><option value="Tiruchirappalli"></option><option value="Salem"></option><option value="Tirunelveli"></option><option value="Erode"></option><option value="Vellore"></option><option value="Puducherry"></option><option value="Hyderabad"></option><option value="Kochi"></option><option value="Thanjavur"></option><option value="Tiruppur"></option></datalist>
 <div class="date-quick" aria-label="Quick travel date"><span class="date-quick-label">Quick date</span><button class="date-chip active" type="button" data-date-offset="0">Today</button><button class="date-chip" type="button" data-date-offset="1">Tomorrow</button><button class="date-chip demo-launch" id="demoBtn" type="button">✦ Try demo buses</button></div>
+<div class="recent-searches" id="recentSearches" hidden aria-label="Recent searches"><span class="recent-searches-label">Recent searches</span><div id="recentSearchChips" class="recent-search-chips"></div><button id="clearRecentSearches" class="recent-clear" type="button">Clear</button></div>
 <div class="panel-foot"><span><b class="check">✓</b> Simple route search</span><span><b class="check">✓</b> Mobile-ready experience</span><span>Services shown depend on connected operator data.</span></div>
 </form></div>
 <main class="wrap">
@@ -446,6 +456,21 @@ const form=$("#searchForm"),from=$("#from"),to=$("#to"),date=$("#date"),btn=$("#
 let currentBuses=[],activeFilter="all",currentRoute={from:"",to:""},demoMode=false;
 function localISO(day){return [day.getFullYear(),String(day.getMonth()+1).padStart(2,"0"),String(day.getDate()).padStart(2,"0")].join("-")}
 const today=new Date();date.min=localISO(today);date.value=date.min;$("#year").textContent=new Date().getFullYear();
+const recentSearchesEl=$("#recentSearches"),recentSearchChips=$("#recentSearchChips");
+const RECENT_SEARCH_KEY="hepra.bus.recent-searches.v1";
+function readRecentSearches(){try{const value=JSON.parse(localStorage.getItem(RECENT_SEARCH_KEY)||"[]");return Array.isArray(value)?value.filter(item=>item&&typeof item.from==="string"&&typeof item.to==="string"&&typeof item.date==="string").slice(0,5):[]}catch(error){return[]}}
+function renderRecentSearches(){
+ const items=readRecentSearches();recentSearchChips.replaceChildren();recentSearchesEl.hidden=!items.length;
+ items.forEach(item=>{const button=node("button","recent-search-chip",item.from+" → "+item.to+" · "+item.date);button.type="button";button.addEventListener("click",()=>{from.value=item.from;to.value=item.to;date.value=item.date;form.requestSubmit()});recentSearchChips.append(button)});
+}
+function saveRecentSearch(item){try{const next=[item,...readRecentSearches().filter(old=>!(old.from.toLowerCase()===item.from.toLowerCase()&&old.to.toLowerCase()===item.to.toLowerCase()&&old.date===item.date))].slice(0,5);localStorage.setItem(RECENT_SEARCH_KEY,JSON.stringify(next))}catch(error){}renderRecentSearches()}
+$("#clearRecentSearches").addEventListener("click",()=>{try{localStorage.removeItem(RECENT_SEARCH_KEY)}catch(error){}renderRecentSearches()});
+renderRecentSearches();
+function readSearchParams(){const params=new URLSearchParams(location.search);return{from:params.get("from"),to:params.get("to"),date:params.get("date")}}
+function restoreSearchFromUrl(){const query=readSearchParams();if(!query.from||!query.to||!query.date)return false;from.value=query.from.slice(0,100);to.value=query.to.slice(0,100);date.value=query.date;return true}
+let restoringHistory=false;
+window.addEventListener("popstate",()=>{if(restoreSearchFromUrl()){restoringHistory=true;form.requestSubmit();restoringHistory=false}else{from.value="Chennai";to.value="Madurai";date.value=date.min;currentBuses=[];results.replaceChildren();statusEl.textContent="";section.hidden=true}});
+
 document.querySelectorAll("[data-date-offset]").forEach(chip=>chip.addEventListener("click",()=>{const day=new Date();day.setDate(day.getDate()+Number(chip.dataset.dateOffset));date.value=localISO(day);document.querySelectorAll("[data-date-offset]").forEach(item=>item.classList.toggle("active",item===chip));}));
 date.addEventListener("change",()=>document.querySelectorAll("[data-date-offset]").forEach(item=>item.classList.toggle("active",date.value===(()=>{const d=new Date();d.setDate(d.getDate()+Number(item.dataset.dateOffset));return localISO(d)})())));
 $("#swapBtn").addEventListener("click",()=>{const old=from.value;from.value=to.value;to.value=old;from.focus()});
@@ -511,6 +536,9 @@ form.addEventListener("submit",async event=>{
  event.preventDefault();demoMode=false;const origin=from.value.trim(),destination=to.value.trim(),journeyDate=date.value;
  if(origin.toLowerCase()===destination.toLowerCase()){section.hidden=false;statusEl.textContent="";results.replaceChildren();showEmpty("Choose two different cities","Your departure and destination need to be different.");section.scrollIntoView({behavior:"smooth",block:"start"});return}
  if(!journeyDate||journeyDate<date.min){section.hidden=false;statusEl.textContent="";results.replaceChildren();showEmpty("Choose a valid travel date","Please select today or a future date.");return}
+ const shareParams=new URLSearchParams({from:origin,to:destination,date:journeyDate});
+ if(restoringHistory)history.replaceState({hepraSearch:true},"","?"+shareParams.toString());else history.pushState({hepraSearch:true},"","?"+shareParams.toString());
+ saveRecentSearch({from:origin,to:destination,date:journeyDate});
  section.hidden=false;results.replaceChildren();statusEl.textContent="Discovering services for "+origin+" → "+destination+"…";btn.disabled=true;btn.textContent="Searching…";
  try{
   const params=new URLSearchParams({from:origin,to:destination,date:journeyDate});
@@ -534,6 +562,9 @@ form.addEventListener("submit",async event=>{
  finally{btn.disabled=false;btn.innerHTML='Discover services <span aria-hidden="true">↗</span>'}
  section.scrollIntoView({behavior:"smooth",block:"start"});
 });
+
+/* Restore a shareable search URL on direct entry without inventing results. */
+if(restoreSearchFromUrl()&&date.value>=date.min)form.requestSubmit();
 
 /* V2 interactive booking request flow */
 const bookingOverlay=$("#bookingOverlay"),bookingForm=$("#bookingForm"),bookingStatus=$("#bookingStatus"),bookingSeatGrid=$("#bookingSeatGrid"),bookingSubmit=$("#bookingSubmit");
