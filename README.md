@@ -10,6 +10,7 @@ Responsive bus-search and booking-request prototype with Vercel serverless APIs,
 - Sort/filter values use fields returned by the current API. Ratings, reviews, amenities, live tracking, and daily lowest-fare calendars are not claimed as live features unless the backend supplies verified data.
 - `GET /api/health`: database health check.
 - `GET /api/buses?from=Chennai&to=Madurai&date=YYYY-MM-DD`: verified service search.
+- `GET /api/boarding-points?serviceId=<service-uuid>`: verified service-specific pickup/drop points from `service_points`; returns empty lists when an operator has not entered points. It never supplies fake locations as live inventory.
 - `POST /api/bookings`: pending booking request and 10-minute database-backed seat holds.
 - `GET /api/booking-status?id=<booking-uuid>&email=<booking-email>`: request, payment, seat-hold and ticket status.
 - `POST /api/booking-cancel`: cancel an unpaid pending request and release its temporary holds.
@@ -29,6 +30,7 @@ Use the same Neon database referenced by Vercel's `DATABASE_URL`. Run the SQL fi
 3. `migrations/002-cancel-booking-release-seats.sql`
 4. `migrations/003-razorpay-payments-tickets.sql`
 5. `migrations/004-expire-pending-bookings.sql`
+6. `migrations/005-service-points.sql`
 
 Do not enable payment traffic until all migrations succeed. Migration 003 also updates the booking-hold and cancellation functions for the payment lifecycle. If earlier migrations were already applied, still run migration 003 after them.
 
